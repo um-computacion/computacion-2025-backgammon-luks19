@@ -1,0 +1,4 @@
+#!/bin/bash
+export VIRTUAL_ENV="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+export PATH="$VIRTUAL_ENV/bin:$PATH"
+unset PYTHONHOME
