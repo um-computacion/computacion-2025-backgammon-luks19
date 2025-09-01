@@ -1,0 +1,15 @@
+README.md
+setup.py
+backgammon_luks19.egg-info/PKG-INFO
+backgammon_luks19.egg-info/SOURCES.txt
+backgammon_luks19.egg-info/dependency_links.txt
+backgammon_luks19.egg-info/top_level.txt
+core/__init__.py
+core/backgammon_game.py
+core/board.py
+core/checker.py
+core/dice.py
+core/player.py
+tests/__init__.py
+tests/test_checker.py
+tests/test_dice.py
