@@ -1,5 +1,34 @@
 Todos los cambios notables del proyecto van a ser documentados en este changelog.
 
+## [02/09/2025]
+### Agregado
+*   **Implementación de la Clase Player (TDD):**
+    *   Añadida la clase `Player` en `core/player.py`, con lógica para la creación de sus 15 fichas.
+    *   Creados los tests unitarios correspondientes en `tests/test_player.py` para validar la inicialización y métodos básicos.
+*   **Documentación del Proyecto:**
+    *   Actualizado el archivo `CHANGELOG.md` para reflejar el progreso de los últimos días.
+    *   Refinada la documentación del diseño y la metodología de testing.
+
+## [01/09/2025]
+### Agregado
+*   **Implementación de la Clase Dice (TDD):**
+    *   Añadida la clase `Dice` en `core/dice.py` con la lógica completa para lanzar dados y gestionar tiradas normales y dobles.
+    *   Creados los tests unitarios en `tests/test_dice.py` para asegurar el correcto funcionamiento.
+
+### Corregido
+*   **Solucionado Error de Entorno (`ModuleNotFoundError`):**
+    *   Se resolvió el problema de importación que impedía a `pytest` encontrar los módulos del `core`.
+    *   Se configuró un archivo `setup.py` y se instaló el proyecto en modo editable (`pip install -e .`) para garantizar que la estructura de paquetes sea reconocida correctamente por el entorno virtual.
+
+## [30/08/2025]
+### Agregado
+*   **Implementación Inicial de la Clase Checker (TDD):**
+    *   Añadida la clase `Checker` completamente funcional en `core/checker.py`.
+    *   Creados los tests unitarios para `Checker` en `tests/test_checker.py`.
+*   **Estructura de Archivos del Proyecto:**
+    *   Creada la estructura de carpetas y archivos base para el `core` del juego (`board.py`, `backgammon_game.py`, etc.).
+    *   Inicializada la carpeta `tests` con su `__init__.py`.
+
 ## [26/08/2025]
 ### Agregado
 - Configuración de CircleCI para integración continua
@@ -32,3 +61,4 @@ Todos los cambios notables del proyecto van a ser documentados en este changelog
   - `prompts-testing.md`
 - Archivo `requirements.txt` para dependencias del proyecto
 - Configuración inicial del repositorio Git
+
