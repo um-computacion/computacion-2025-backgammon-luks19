@@ -1,5 +1,13 @@
+# Archivos específicos que no quiero en GitHub
+get-pip.py
+setup.py
+
+# Entorno virtual
+env/
+
+# Archivos de distribución/empaquetado de Python
+*.egg-info/
+
+# Archivos de Python compilados (común que se generen)
 __pycache__/
-venv/
-.coverage
-coverage.xml
-get-pip.py 
+*.pyc
