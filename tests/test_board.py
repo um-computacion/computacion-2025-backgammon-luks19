@@ -142,3 +142,36 @@ def test_es_movimiento_valido_direccion_incorrecta_blancas():
     # Un movimiento hacia "adelante" (del 5 al 7) debería ser inválido para las blancas
     es_valido = tablero.es_movimiento_valido(jugador_blanco, 5, 7)
     assert es_valido is False
+
+def test_mover_ficha_con_captura():
+    """
+    Verifica que al mover a un punto con una sola ficha enemiga (blot),
+    la ficha enemiga es capturada y movida a la barra.
+    """
+    tablero = Board()
+    jugador_negro = Player(nombre="Negro", color="negro")
+
+    # 1. Ficha del jugador negro lista para mover en el punto 1
+    tablero.agregar_ficha(Checker(color="negro"), 1)
+
+    # 2. Ficha enemiga (blanca) sola en el punto 4, lista para ser capturada
+    ficha_a_capturar = Checker(color="blanco", posicion_inicial=4)
+    tablero.agregar_ficha(ficha_a_capturar, 4)
+
+    # 3. El jugador negro mueve del 1 al 4 (una tirada de 3)
+    tablero.mover_ficha(1, 4)
+
+    # --- Verificaciones ---
+    # El punto de origen (1) debe estar vacío
+    assert len(tablero._puntos_[1]) == 0
+
+    # El punto de destino (4) ahora debe tener una sola ficha, y debe ser negra
+    assert len(tablero._puntos_[4]) == 1
+    assert tablero._puntos_[4][0].obtener_color() == "negro"
+
+    # La barra del jugador blanco debe contener la ficha capturada
+    assert len(tablero._barra_["blanco"]) == 1
+    assert tablero._barra_["blanco"][0] == ficha_a_capturar
+    
+    # La barra del jugador negro debe seguir vacía
+    assert len(tablero._barra_["negro"]) == 0
