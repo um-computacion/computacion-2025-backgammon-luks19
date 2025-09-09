@@ -1,5 +1,19 @@
 Todos los cambios notables del proyecto van a ser documentados en este changelog.
 
+## [09/09/2024] 
+### Agregado
+- Lógica de captura de fichas en la clase Board
+- Sistema de reingreso de fichas en el juego
+
+### Cambiado
+- Mejorada la estructura de la clase Board
+- Refactorizado código para mejor mantenibilidad
+
+## [08/09/2024] 
+### Cambiado
+- Implementadas mejoras generales en la clase Board
+- Refactorización de código existente
+
 ## [07/09/2025]
 ### Agregado
 - Nuevos desarrollos aplicados en `prompts-documentación.md` y otros archivos de documentación.
