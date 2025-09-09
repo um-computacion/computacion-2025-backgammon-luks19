@@ -94,31 +94,46 @@ class Board:
         """
         Verifica si un movimiento es válido según las reglas del Backgammon.
         """
+        color_jugador = jugador._color_
+
+        # --- NUEVA REGLA: REINGRESO OBLIGATORIO DESDE LA BARRA ---
+        if self._barra_[color_jugador]:
+            # Si hay fichas en la barra, el único movimiento válido es desde la barra.
+            # Usamos el punto 0 para representar un movimiento desde la barra.
+            if punto_origen != 0:
+                return False
+            # Si el movimiento es desde la barra, las demás reglas se aplican.
+        # --- FIN DE LA NUEVA REGLA ---
+
         # 0. Verificaciones básicas
-        if not (1 <= punto_origen <= 24 and 1 <= punto_destino <= 24):
-            return False # Puntos fuera del tablero
-        
-        fichas_en_origen = self._puntos_[punto_origen]
-        if not fichas_en_origen or fichas_en_origen[-1].obtener_color() != jugador._color_:
-            return False # No hay fichas del jugador en el origen
+        # Permitimos que el origen sea 0 (barra) pero no el destino.
+        if not (0 <= punto_origen <= 24 and 1 <= punto_destino <= 24):
+            return False
+
+        # Si el movimiento no es desde la barra, verificar si hay fichas en el origen
+        if punto_origen > 0:
+            fichas_en_origen = self._puntos_[punto_origen]
+            if not fichas_en_origen or fichas_en_origen[-1].obtener_color() != color_jugador:
+                return False # No hay fichas del jugador en el origen
 
         # 1. Verificar la dirección del movimiento
-        color_jugador = jugador._color_
         if color_jugador == "blanco":
-            # Las blancas mueven en sentido decreciente (de puntos altos a bajos)
-            if punto_destino >= punto_origen:
-                return False 
+            # Las blancas reingresan en puntos altos (24, 23, etc.)
+            # y mueven en sentido decreciente.
+            # Un movimiento desde la barra (origen 0) a un punto bajo es inválido.
+            # Para simplificar, asumimos que el cálculo del destino es correcto.
+            if punto_origen > 0 and punto_destino >= punto_origen:
+                return False
         else: # "negro"
-            # Las negras mueven en sentido creciente (de puntos bajos a altos)
-            if punto_destino <= punto_origen:
+            # Las negras reingresan en puntos bajos (1, 2, etc.)
+            # y mueven en sentido creciente.
+            if punto_origen > 0 and punto_destino <= punto_origen:
                 return False
 
         # 2. Verificar si el punto de destino está bloqueado
         fichas_en_destino = self._puntos_[punto_destino]
         if len(fichas_en_destino) > 1:
-            # Si hay más de una ficha, solo podemos mover si son de nuestro color
             if fichas_en_destino[0].obtener_color() != color_jugador:
                 return False # Punto bloqueado por el oponente
 
-        # Si pasa todas las validaciones, el movimiento es válido
-        return True    
+        return True

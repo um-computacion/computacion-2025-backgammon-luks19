@@ -175,3 +175,43 @@ def test_mover_ficha_con_captura():
     
     # La barra del jugador negro debe seguir vacía
     assert len(tablero._barra_["negro"]) == 0
+
+def test_movimiento_invalido_si_hay_fichas_en_la_barra():
+    """
+    Verifica que si un jugador tiene fichas en la barra, no puede mover
+    otras fichas en el tablero. Su único movimiento legal es reingresar.
+    """
+    tablero = Board()
+    jugador_negro = Player(nombre="Negro", color="negro")
+
+    # 1. Ponemos una ficha del jugador negro en la barra
+    ficha_en_barra = Checker(color="negro")
+    tablero.agregar_a_barra(ficha_en_barra)
+
+    # 2. Ponemos otra ficha del mismo jugador en el tablero
+    tablero.agregar_ficha(Checker(color="negro"), 10)
+
+    # 3. Verificamos que mover la ficha del tablero (del 10 al 12) es INVÁLIDO
+    # porque está obligado a mover primero la de la barra.
+    es_valido = tablero.es_movimiento_valido(jugador_negro, 10, 12)
+    assert es_valido is False
+
+def test_reingreso_desde_la_barra_es_valido():
+    """
+    Verifica que un movimiento para reingresar una ficha desde la barra
+    al tablero del oponente es considerado válido.
+    (Nota: El movimiento exacto depende de la tirada del dado, aquí solo
+    validamos la regla general de que el reingreso es posible).
+    """
+    tablero = Board()
+    jugador_negro = Player(nombre="Negro", color="negro")
+
+    # 1. Ponemos una ficha del jugador negro en la barra
+    ficha_en_barra = Checker(color="negro")
+    tablero.agregar_a_barra(ficha_en_barra)
+
+    # 2. Verificamos que un intento de reingreso es válido.
+    # Para las negras, reingresar desde la barra es como mover desde un "punto 0".
+    # Un movimiento al punto 3 (tirada de 3) debería ser válido.
+    es_valido = tablero.es_movimiento_valido(jugador_negro, 0, 3) # Usamos 0 para la barra
+    assert es_valido is True
