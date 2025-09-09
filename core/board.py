@@ -1,4 +1,5 @@
 from .checker import Checker
+from .player import Player
 
 class Board:
     """
@@ -60,3 +61,54 @@ class Board:
         """
         color = ficha.obtener_color()
         self._barra_[color].append(ficha)
+
+    def mover_ficha(self, punto_origen: int, punto_destino: int):
+        """
+        Mueve la ficha superior de un punto de origen a un punto de destino.
+        Asume que el movimiento ya ha sido validado.
+        """
+        # Quitamos la ficha de la cima del punto de origen
+        if not self._puntos_[punto_origen]:
+            # No hay fichas para mover, esto no debería pasar si la lógica es correcta
+            return
+
+        ficha_a_mover = self._puntos_[punto_origen].pop()
+        
+        # Actualizamos su posición interna
+        ficha_a_mover.establecer_posicion(punto_destino)
+        
+        # La agregamos al punto de destino
+        self._puntos_[punto_destino].append(ficha_a_mover)
+
+    def es_movimiento_valido(self, jugador: Player, punto_origen: int, punto_destino: int) -> bool:
+        """
+        Verifica si un movimiento es válido según las reglas del Backgammon.
+        """
+        # 0. Verificaciones básicas
+        if not (1 <= punto_origen <= 24 and 1 <= punto_destino <= 24):
+            return False # Puntos fuera del tablero
+        
+        fichas_en_origen = self._puntos_[punto_origen]
+        if not fichas_en_origen or fichas_en_origen[-1].obtener_color() != jugador._color_:
+            return False # No hay fichas del jugador en el origen
+
+        # 1. Verificar la dirección del movimiento
+        color_jugador = jugador._color_
+        if color_jugador == "blanco":
+            # Las blancas mueven en sentido decreciente (de puntos altos a bajos)
+            if punto_destino >= punto_origen:
+                return False 
+        else: # "negro"
+            # Las negras mueven en sentido creciente (de puntos bajos a altos)
+            if punto_destino <= punto_origen:
+                return False
+
+        # 2. Verificar si el punto de destino está bloqueado
+        fichas_en_destino = self._puntos_[punto_destino]
+        if len(fichas_en_destino) > 1:
+            # Si hay más de una ficha, solo podemos mover si son de nuestro color
+            if fichas_en_destino[0].obtener_color() != color_jugador:
+                return False # Punto bloqueado por el oponente
+
+        # Si pasa todas las validaciones, el movimiento es válido
+        return True    

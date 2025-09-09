@@ -1,6 +1,7 @@
 import pytest
 from core.board import Board
 from core.checker import Checker
+from core.player import Player 
 
 def test_creacion_tablero_vacio():
     """
@@ -73,3 +74,71 @@ def test_agregar_ficha_a_barra():
     assert len(tablero._barra_["negro"]) == 1
     assert tablero._barra_["negro"][0] == ficha
     assert len(tablero._barra_["blanco"]) == 0
+
+def test_mover_ficha_simple():
+    """
+    Verifica que una ficha se puede mover de un punto a otro vacío.
+    """
+    tablero = Board()
+    
+    # Colocamos una ficha blanca en el punto 1 para moverla
+    ficha_a_mover = Checker(color="blanco", posicion_inicial=1)
+    tablero.agregar_ficha(ficha_a_mover, 1)
+    
+    # Movemos la ficha del punto 1 al 4 (una tirada de 3)
+    tablero.mover_ficha(1, 4)
+    
+    assert len(tablero._puntos_[1]) == 0
+    assert len(tablero._puntos_[4]) == 1
+    assert tablero._puntos_[4][0].obtener_color() == "blanco"
+    # Verificamos que la posición interna de la ficha se actualizó
+    assert ficha_a_mover.obtener_posicion() == 4
+
+def test_es_movimiento_valido_simple():
+    """
+    Verifica la validación de un movimiento simple y legal.
+    """
+    tablero = Board()
+    jugador_blanco = Player(nombre="Test", color="blanco")
+    
+    # Colocamos una ficha del jugador en el punto 1
+    tablero.agregar_ficha(Checker(color="blanco"), 1)
+    
+    # Un movimiento de 3 (del punto 1 al 4) debería ser válido para las negras (sentido creciente)
+    # y no para las blancas. Vamos a testear para las negras.
+    jugador_negro = Player(nombre="Test2", color="negro")
+    tablero.agregar_ficha(Checker(color="negro"), 1)
+    
+    es_valido = tablero.es_movimiento_valido(jugador_negro, 1, 4)
+    assert es_valido is True
+
+def test_es_movimiento_valido_bloqueado():
+    """
+    Verifica que un movimiento a un punto bloqueado por el oponente no es válido.
+    """
+    tablero = Board()
+    jugador_negro = Player(nombre="Test", color="negro")
+    
+    # Colocamos una ficha negra en el punto 1
+    tablero.agregar_ficha(Checker(color="negro"), 1)
+    
+    # Bloqueamos el punto 4 con dos fichas blancas
+    tablero.agregar_ficha(Checker(color="blanco"), 4, cantidad=2)
+    
+    # El movimiento del 1 al 4 ahora debería ser inválido
+    es_valido = tablero.es_movimiento_valido(jugador_negro, 1, 4)
+    assert es_valido is False
+
+def test_es_movimiento_valido_direccion_incorrecta_blancas():
+    """
+    Verifica que un jugador de blancas no puede mover sus fichas hacia adelante (sentido creciente).
+    """
+    tablero = Board()
+    jugador_blanco = Player(nombre="Test", color="blanco")
+    
+    # Colocamos una ficha blanca en el punto 5
+    tablero.agregar_ficha(Checker(color="blanco"), 5)
+    
+    # Un movimiento hacia "adelante" (del 5 al 7) debería ser inválido para las blancas
+    es_valido = tablero.es_movimiento_valido(jugador_blanco, 5, 7)
+    assert es_valido is False
