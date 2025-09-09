@@ -1,5 +1,22 @@
 Todos los cambios notables del proyecto van a ser documentados en este changelog.
 
+## [07/09/2025]
+### Agregado
+- Nuevos desarrollos aplicados en `prompts-documentación.md` y otros archivos de documentación.
+- Implementación de la clase `Board` y realización de pruebas asociadas.
+- Creación de la carpeta `assets` para almacenar imágenes y sonidos.
+
+### Corregido
+- Ajustes menores en los archivos mencionados para mejorar consistencia y organización.
+
+## [04/09/2025]
+### Agregado
+- Desarrollos y mejoras en `README.md` y `prompts-documentación.md`.
+- Creación de la carpeta `prompts-ai` para organizar archivos relacionados con prompts.
+
+### Corregido
+- Configuración correcta del archivo `.gitignore` para excluir archivos innecesarios.
+
 ## [02/09/2025]
 ### Agregado
 *   **Implementación de la Clase Player (TDD):**
