@@ -1,6 +1,7 @@
 from .board import Board
 from .player import Player
 from .dice import Dice
+from .checker import Checker
 import random
 
 class BackgammonGame:
