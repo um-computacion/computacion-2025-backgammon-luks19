@@ -69,7 +69,7 @@
 
 ## Prompt 2: Estrategia de Testing para la Clase Board
 
-- **Modelo / herramienta usada:** Manus
+- **Modelo / herramienta usada:** claude
 
 - **Prompt mío:**
   > estoy a punto de escribir los tests para la clase `Board`, específicamente para el método `configurar_tablero_inicial`. Me doy cuenta de que tengo que verificar muchas cosas: que haya 2 fichas en un punto, 5 en otro, que sean del color correcto, etc. Mi primera idea es hacer un `assert` para cada una de esas 30 fichas, pero me parece que sería un test larguísimo y muy repetitivo. hay alguna forma más eficiente de verificar estas condiciones complejas sin hacer docenas de `asserts` individuales?

@@ -100,3 +100,44 @@
 - **Indicación de uso:** **Idea usada sin cambios.** La sugerencia de usar un diccionario de listas para representar el tablero fue adoptada como la base para mi implementación de la clase `Board`. 
 
 - **Referencia a los archivos finales:** `core/board.py`
+
+## Prompt 3: Estrategia para Testear la Composición de Objetos
+
+- **Modelo / herramienta usada:** claude
+
+- **Prompt mío:**
+  > estoy por escribir el test para la clase `BackgammonGame`. Esta clase, en su `__init__`, crea instancias de otras clases (`Board`, `Player`, `Dice`). ¿Cómo puedo verificar en mi test que estos objetos se han creado correctamente? Mi idea es comprobar algún atributo, como `juego._tablero_._puntos_`, pero me parece que estoy testeando un detalle interno de la clase `Board` dentro del test de `BackgammonGame`, y no estoy seguro si eso es una buena práctica.
+
+- **Respuesta:**
+  > ¡Esa es una observación fantástica y muy perspicaz! Tienes toda la razón: testear los detalles internos de un objeto "hijo" (como `Board`) dentro del test de un objeto "padre" (`BackgammonGame`) se llama "testear a través de los límites del objeto" y se considera una mala práctica porque acopla tus tests. Si en el futuro cambias cómo funciona `Board`, se rompería el test de `BackgammonGame`, aunque `BackgammonGame` siga funcionando bien.
+  >
+  > La forma correcta y profesional de verificar que un objeto ha creado correctamente sus componentes internos es usando la función `isinstance()`.
+  >
+  > **¿Cómo funciona `isinstance()`?**
+  >
+  > `isinstance(objeto, Clase)` simplemente devuelve `True` si el `objeto` es una instancia de esa `Clase` (o de una subclase), y `False` si no lo es.
+  >
+  > **¿Cómo aplicarlo en tu test?**
+  >
+  > En lugar de mirar los atributos internos, puedes hacer aserciones directas sobre el tipo de los objetos:
+  >
+  > ```python
+  > def test_creacion_del_juego():
+  >     juego = BackgammonGame("J1", "J2")
+  >     
+  >     # Verificamos que los atributos son del TIPO correcto
+  >     assert isinstance(juego._tablero_, Board)
+  >     assert isinstance(juego._jugador1_, Player)
+  >     assert isinstance(juego._dados_, Dice)
+  > ```
+  >
+  > **Ventajas de este enfoque:**
+  > *   **Desacoplamiento:** Tu test de `BackgammonGame` solo se preocupa de que `_tablero_` sea "algún tipo de `Board`". No le importa cómo funciona `Board` por dentro. La responsabilidad de testear si `Board` funciona bien ya la tiene `test_board.py`.
+  > *   **Claridad:** El test expresa exactamente lo que quieres verificar: "¿Se ha creado un objeto de la clase `Board`?".
+  > *   **Robustez:** Es mucho más resistente a cambios futuros.
+  >
+  > Usar `isinstance` es la técnica estándar para testear la "composición de objetos" (cuando una clase está "compuesta" de otras). Te recomiendo usarla para verificar la correcta inicialización de `BackgammonGame`.
+
+- **Indicación de uso:** **Usado sin cambios.** La recomendación fue fundamental para entender cómo testear correctamente la inicialización de una clase que contiene otras clases. Adopté el uso de `assert isinstance()` en `tests/test_backgammon_game.py` para asegurar que los tests estuvieran desacoplados y fueran más robustos.
+
+- **Referencia a los archivos finales:** `tests/test_backgammon_game.py`
