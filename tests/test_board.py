@@ -215,3 +215,69 @@ def test_reingreso_desde_la_barra_es_valido():
     # Un movimiento al punto 3 (tirada de 3) debería ser válido.
     es_valido = tablero.es_movimiento_valido(jugador_negro, 0, 3) # Usamos 0 para la barra
     assert es_valido is True
+
+def test_puede_sacar_fichas_false():
+    """
+    Verifica que un jugador no puede sacar fichas si todavía tiene
+    fichas fuera de su home board.
+    """
+    tablero = Board()
+    jugador_blanco = Player(nombre="Blanco", color="blanco")
+    
+    # Home board de las blancas: puntos 1-6
+    # Colocamos 14 fichas en el home board
+    tablero.agregar_ficha(Checker(color="blanco"), 1, cantidad=14)
+    # PERO dejamos una ficha fuera, en el punto 7
+    tablero.agregar_ficha(Checker(color="blanco"), 7)
+    
+    assert tablero.puede_sacar_fichas(jugador_blanco) is False
+
+def test_puede_sacar_fichas_true():
+    """
+    Verifica que un jugador puede sacar fichas una vez que todas
+    sus 15 fichas están en su home board.
+    """
+    tablero = Board()
+    jugador_blanco = Player(nombre="Blanco", color="blanco")
+
+    # Colocamos todas las 15 fichas en el home board (puntos 1-6)
+    tablero.agregar_ficha(Checker(color="blanco"), 1, cantidad=5)
+    tablero.agregar_ficha(Checker(color="blanco"), 3, cantidad=5)
+    tablero.agregar_ficha(Checker(color="blanco"), 6, cantidad=5)
+
+    assert tablero.puede_sacar_fichas(jugador_blanco) is True
+
+def test_sacar_ficha_movimiento_valido():
+    """
+    Verifica que mover una ficha "fuera" del tablero es un movimiento válido
+    cuando el jugador está en la fase de bear off.
+    Usaremos el punto 25 para las negras y 0 para las blancas como destino "fuera".
+    """
+    tablero = Board()
+    jugador_negro = Player(nombre="Negro", color="negro")
+
+    # Ponemos todas las fichas negras en su home board (19-24)
+    tablero.agregar_ficha(Checker(color="negro"), 20, cantidad=15)
+
+    # El movimiento para sacar una ficha del punto 20 (con una tirada de 5)
+    # debería ser válido. Destino 25 = fuera.
+    es_valido = tablero.es_movimiento_valido(jugador_negro, 20, 25)
+    assert es_valido is True
+
+def test_sacar_ficha_ejecucion():
+    """
+    Verifica que el método para sacar una ficha la mueve correctamente
+    al área de fichas fuera.
+    """
+    tablero = Board()
+    
+    # Ponemos una ficha negra en el punto 22
+    ficha_a_sacar = Checker(color="negro", posicion_inicial=22)
+    tablero.agregar_ficha(ficha_a_sacar, 22)
+    
+    # Ejecutamos el método para sacar la ficha
+    tablero.sacar_ficha(22)
+    
+    assert len(tablero._puntos_[22]) == 0
+    assert len(tablero._fichas_fuera_["negro"]) == 1
+    assert tablero._fichas_fuera_["negro"][0] == ficha_a_sacar
