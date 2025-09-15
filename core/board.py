@@ -92,48 +92,72 @@ class Board:
 
     def es_movimiento_valido(self, jugador: Player, punto_origen: int, punto_destino: int) -> bool:
         """
-        Verifica si un movimiento es válido según las reglas del Backgammon.
+        Verifica si un movimiento es válido, incluyendo reingreso y bear-off.
         """
         color_jugador = jugador._color_
 
-        # --- NUEVA REGLA: REINGRESO OBLIGATORIO DESDE LA BARRA ---
+        # --- REGLA: REINGRESO OBLIGATORIO ---
         if self._barra_[color_jugador]:
-            # Si hay fichas en la barra, el único movimiento válido es desde la barra.
-            # Usamos el punto 0 para representar un movimiento desde la barra.
-            if punto_origen != 0:
-                return False
-            # Si el movimiento es desde la barra, las demás reglas se aplican.
-        # --- FIN DE LA NUEVA REGLA ---
+            return punto_origen == 0 and 1 <= punto_destino <= 24
 
-        # 0. Verificaciones básicas
-        # Permitimos que el origen sea 0 (barra) pero no el destino.
-        if not (0 <= punto_origen <= 24 and 1 <= punto_destino <= 24):
+        # --- REGLA: BEAR OFF (SACAR FICHAS) ---
+        # Usamos 0 para blancas y 25 para negras como destino "fuera"
+        if (color_jugador == "blanco" and punto_destino == 0) or \
+           (color_jugador == "negro" and punto_destino == 25):
+            return self.puede_sacar_fichas(jugador)
+
+        # --- VALIDACIONES ESTÁNDAR ---
+        if not (1 <= punto_origen <= 24 and 1 <= punto_destino <= 24):
+            return False
+        
+        fichas_en_origen = self._puntos_[punto_origen]
+        if not fichas_en_origen or fichas_en_origen[-1].obtener_color() != color_jugador:
             return False
 
-        # Si el movimiento no es desde la barra, verificar si hay fichas en el origen
-        if punto_origen > 0:
-            fichas_en_origen = self._puntos_[punto_origen]
-            if not fichas_en_origen or fichas_en_origen[-1].obtener_color() != color_jugador:
-                return False # No hay fichas del jugador en el origen
-
-        # 1. Verificar la dirección del movimiento
         if color_jugador == "blanco":
-            # Las blancas reingresan en puntos altos (24, 23, etc.)
-            # y mueven en sentido decreciente.
-            # Un movimiento desde la barra (origen 0) a un punto bajo es inválido.
-            # Para simplificar, asumimos que el cálculo del destino es correcto.
-            if punto_origen > 0 and punto_destino >= punto_origen:
-                return False
+            if punto_destino >= punto_origen: return False
         else: # "negro"
-            # Las negras reingresan en puntos bajos (1, 2, etc.)
-            # y mueven en sentido creciente.
-            if punto_origen > 0 and punto_destino <= punto_origen:
-                return False
+            if punto_destino <= punto_origen: return False
 
-        # 2. Verificar si el punto de destino está bloqueado
         fichas_en_destino = self._puntos_[punto_destino]
-        if len(fichas_en_destino) > 1:
-            if fichas_en_destino[0].obtener_color() != color_jugador:
-                return False # Punto bloqueado por el oponente
+        if len(fichas_en_destino) > 1 and fichas_en_destino[0].obtener_color() != color_jugador:
+            return False
 
         return True
+    
+    def puede_sacar_fichas(self, jugador: Player) -> bool:
+        """
+        Verifica si el jugador tiene todas sus fichas en su home board.
+        """
+        color = jugador._color_
+        fichas_en_juego = 0
+        fichas_en_home_board = 0
+
+        if color == "blanco":
+            # Home board de las blancas: puntos 1-6
+            home_board_range = range(1, 7)
+        else: # "negro"
+            # Home board de las negras: puntos 19-24
+            home_board_range = range(19, 25)
+
+        for i in range(1, 25):
+            for ficha in self._puntos_[i]:
+                if ficha.obtener_color() == color:
+                    fichas_en_juego += 1
+                    if i in home_board_range:
+                        fichas_en_home_board += 1
+        
+        # Todas las fichas en juego deben estar en el home board.
+        # También nos aseguramos de que no haya fichas en la barra.
+        return fichas_en_juego == fichas_en_home_board and not self._barra_[color]
+
+    def sacar_ficha(self, punto_origen: int):
+        """
+        Mueve una ficha desde un punto del tablero al área de fuera.
+        """
+        if not self._puntos_[punto_origen]:
+            return
+        
+        ficha = self._puntos_[punto_origen].pop()
+        color = ficha.obtener_color()
+        self._fichas_fuera_[color].append(ficha)
