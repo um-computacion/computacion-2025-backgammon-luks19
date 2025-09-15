@@ -1,5 +1,14 @@
 Todos los cambios notables del proyecto van a ser documentados en este changelog.
 
+## [15/09/2025]
+### Agregado
+- Implementación de lógica para sacar fichas del tablero en el juego de backgammon
+- Clase BackgammonGame completa con métodos para manejar el estado del juego
+
+### Cambiado
+- Refactor de la estructura del proyecto para incluir la nueva clase BackgammonGame
+- Mejora en la validación de movimientos para incluir la posibilidad de bear off
+
 ## [09/09/2024] 
 ### Agregado
 - Lógica de captura de fichas en la clase Board

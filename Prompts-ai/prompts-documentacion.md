@@ -1,6 +1,6 @@
 ## Prompt 1: Solicitud de un Formato Estándar para Documentar Prompts
 
-- **Modelo / herramienta usada:** Manus
+- **Modelo / herramienta usada:** chat GPT
 
 - **El texto exacto del prompt:**
   > mira en mi proyecto debo documentar lso pormpts utilizados en los archivos: prompts-desarrollo.md`, `prompts-testing.md`, o `prompts-documentacion.md. puedes darme el formato para escribir los mensajes de los archivos de pormpts
