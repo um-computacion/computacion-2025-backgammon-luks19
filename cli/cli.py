@@ -17,3 +17,25 @@ class CLI:
         """
         tablero = self._juego_._tablero_
         print("\n" + "="*40)
+
+        # Puntos 12 a 1
+        linea_superior = ""
+        for i in range(12, 0, -1):
+            fichas = tablero._puntos_.get(i, [])
+            char = f"{len(fichas)}{fichas[0].obtener_color()[0]}" if fichas else "·"
+            linea_superior += f" {char:<3}"
+        print(f" 12 a 1: {linea_superior}")
+
+        # Puntos 13 a 24
+        linea_inferior = ""
+        for i in range(13, 25):
+            fichas = tablero._puntos_.get(i, [])
+            char = f"{len(fichas)}{fichas[0].obtener_color()[0]}" if fichas else "·"
+            linea_inferior += f" {char:<3}"
+        print(f" 13 a 24: {linea_inferior}")
+
+        # Imprimir información de la barra
+        barra_negras = len(tablero._barra_["negro"])
+        barra_blancas = len(tablero._barra_["blanco"])
+        print(f"Barra: Negras[{barra_negras}] | Blancas[{barra_blancas}]")
+        print("="*40)
