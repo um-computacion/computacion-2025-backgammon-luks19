@@ -81,3 +81,13 @@ class CLI:
             self._juego_._dados_.lanzar()
             tiradas = self._juego_._dados_._tiradas_disponibles_
             print(f"Tiradas disponibles: {tiradas}")    
+
+             # Bucle para los movimientos del turno actual
+            while tiradas:
+                movimiento = self._obtener_movimiento_del_usuario()
+                if movimiento is None: # El usuario escribió 'salir' o hubo un error
+                    # Por ahora, simplemente pasamos de turno en caso de error/salida
+                    print("Pasando de turno...")
+                    break 
+
+                origen, destino = movimiento
