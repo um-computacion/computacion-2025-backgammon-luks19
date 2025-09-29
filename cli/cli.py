@@ -69,4 +69,45 @@ class CLI:
         Inicia y gestiona el bucle principal del juego con interacción del usuario.
         """
         print("¡Bienvenido a Backgammon!")
-        self._juego_.iniciar_juego()    
+        self._juego_.iniciar_juego()
+
+        while not self._juego_._juego_terminado_:
+            self._dibujar_tablero_()
+            
+            jugador_actual = self._juego_._jugador_actual_
+            print(f"\nTurno de: {jugador_actual._nombre_}")
+
+            # Tirar los dados
+            self._juego_._dados_.lanzar()
+            tiradas = self._juego_._dados_._tiradas_disponibles_
+            print(f"Tiradas disponibles: {tiradas}")    
+
+             # Bucle para los movimientos del turno actual
+            while tiradas:
+                movimiento = self._obtener_movimiento_del_usuario()
+                if movimiento is None: # El usuario escribió 'salir' o hubo un error
+                    # Por ahora, simplemente pasamos de turno en caso de error/salida
+                    print("Pasando de turno...")
+                    break 
+
+                origen, destino = movimiento
+
+                # --- Conexión con el CORE ---
+                # 1. Validar si el movimiento es legal
+                if self._juego_._tablero_.es_movimiento_valido(jugador_actual, origen, destino):
+                    # 2. Calcular la distancia del movimiento
+                    distancia = abs(destino - origen)
+                    
+                    # 3. Verificar si la distancia corresponde a una tirada disponible
+                    if distancia in tiradas:
+                        print(f"Movimiento válido. Moviendo de {origen} a {destino}.")
+                        self._juego_._tablero_.mover_ficha(origen, destino)
+                        
+                        # 4. Usar la tirada
+                        tiradas.remove(distancia)
+                        self._dibujar_tablero_() # Volver a dibujar para ver el cambio
+                        print(f"Tiradas restantes: {tiradas}")
+                    else:
+                        print(f"Error: La distancia del movimiento ({distancia}) no corresponde a ninguna tirada disponible {tiradas}.")
+                else:
+                    print("Error: Movimiento inválido según las reglas del juego.")
