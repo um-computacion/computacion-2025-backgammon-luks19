@@ -40,31 +40,26 @@ class CLI:
         print(f"Barra: Negras[{barra_negras}] | Blancas[{barra_blancas}]")
         print("="*40)
 
-    def run(self):
+    def _obtener_movimiento_del_usuario(self) -> tuple[int, int] | None:
         """
-        Inicia y gestiona el bucle principal del juego.
+        Pide al usuario el origen y el destino del movimiento.
+        Devuelve una tupla (origen, destino) o None si el usuario quiere salir.
         """
-        print("¡Bienvenido a Backgammon!")
-        self._juego_.iniciar_juego()
+        try:
+            origen_str = input("Mover desde el punto (o 'salir'): ")
+            if origen_str.lower() == 'salir':
+                return None
 
-        while not self._juego_._juego_terminado_:
-            self._dibujar_tablero_()
-            
-            jugador_actual = self._juego_._jugador_actual_
-            print(f"\nTurno de: {jugador_actual._nombre_}")
+            # Permitimos 'barra' como origen
+            if origen_str.lower() == 'barra':
+                origen = 0
+            else:
+                origen = int(origen_str)
 
-            # Tirar los dados
-            self._juego_._dados_.lanzar()
-            tiradas = self._juego_._dados_._tiradas_disponibles_
-            print(f"Tiradas disponibles: {tiradas}")
+            destino_str = input("Mover al punto: ")
+            destino = int(destino_str)
 
-            # --- Lógica de movimiento (simplificada por ahora) ---
-            # En el futuro, aquí pediremos los movimientos al usuario.
-            # Por ahora, solo cambiamos de turno para ver el bucle funcionar.
-            input("Presiona Enter para pasar al siguiente turno...")
-            
-            self._juego_.cambiar_jugador()
-
-        print("¡Juego terminado!")
-        if self._juego_._ganador_:
-            print(f"El ganador es: {self._juego_._ganador_._nombre_}")    
+            return origen, destino
+        except ValueError:
+            print("Error: Por favor, introduce números válidos para los puntos.")
+            return None  
