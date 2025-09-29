@@ -69,4 +69,15 @@ class CLI:
         Inicia y gestiona el bucle principal del juego con interacción del usuario.
         """
         print("¡Bienvenido a Backgammon!")
-        self._juego_.iniciar_juego()    
+        self._juego_.iniciar_juego()
+
+        while not self._juego_._juego_terminado_:
+            self._dibujar_tablero_()
+            
+            jugador_actual = self._juego_._jugador_actual_
+            print(f"\nTurno de: {jugador_actual._nombre_}")
+
+            # Tirar los dados
+            self._juego_._dados_.lanzar()
+            tiradas = self._juego_._dados_._tiradas_disponibles_
+            print(f"Tiradas disponibles: {tiradas}")    
