@@ -63,3 +63,10 @@ class CLI:
         except ValueError:
             print("Error: Por favor, introduce números válidos para los puntos.")
             return None  
+
+    def run(self):
+        """
+        Inicia y gestiona el bucle principal del juego con interacción del usuario.
+        """
+        print("¡Bienvenido a Backgammon!")
+        self._juego_.iniciar_juego()    
