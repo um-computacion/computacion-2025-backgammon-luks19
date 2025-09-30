@@ -53,3 +53,33 @@ def test_cambiar_jugador():
     # Verificamos que vuelve al jugador inicial después de otro cambio
     juego.cambiar_jugador()
     assert juego._jugador_actual_ == jugador_inicial
+
+def test_verificar_ganador():
+    """
+    Verifica que el juego detecta correctamente cuando un jugador ha ganado.
+    """
+    juego = BackgammonGame("Jugador 1", "Jugador 2")
+    juego.iniciar_juego()
+    
+    # Simulamos que el jugador 1 (negras) ha sacado todas sus 15 fichas
+    # Para esto, simplemente llenamos su lista de fichas fuera en el tablero
+    for _ in range(15):
+        juego._tablero_._fichas_fuera_["negro"].append(Checker(color="negro"))
+        
+    # Llamamos al método que verifica la condición de victoria
+    juego._verificar_ganador_()
+    
+    assert juego._juego_terminado_ is True
+    assert juego._ganador_ == juego._jugador1_
+
+def test_no_hay_ganador_al_inicio():
+    """
+    Verifica que al inicio del juego, no hay ningún ganador.
+    """
+    juego = BackgammonGame("Jugador 1", "Jugador 2")
+    juego.iniciar_juego()
+    
+    juego._verificar_ganador_()
+    
+    assert juego._juego_terminado_ is False
+    assert juego._ganador_ is None

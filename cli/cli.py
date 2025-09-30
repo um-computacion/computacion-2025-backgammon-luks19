@@ -111,3 +111,10 @@ class CLI:
                         print(f"Error: La distancia del movimiento ({distancia}) no corresponde a ninguna tirada disponible {tiradas}.")
                 else:
                     print("Error: Movimiento inválido según las reglas del juego.")
+
+            # Cambiamos de jugador para el siguiente turno
+            self._juego_.cambiar_jugador()
+
+        print("¡Juego terminado!")
+        if self._juego_._ganador_:
+            print(f"El ganador es: {self._juego_._ganador_._nombre_}")        
