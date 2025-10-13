@@ -43,3 +43,20 @@ class BackgammonGame:
         else:
             self._jugador_actual_ = self._jugador1_
 
+    def _verificar_ganador_(self):
+        """
+        Comprueba si alguno de los jugadores ha sacado todas sus fichas.
+        Si es así, actualiza el estado del juego para declararlo terminado.
+        """
+        # Verificamos si el jugador 1 (negras) ha ganado
+        if len(self._tablero_._fichas_fuera_["negro"]) == 15:
+            self._juego_terminado_ = True
+            self._ganador_ = self._jugador1_
+            return
+
+        # Verificamos si el jugador 2 (blancas) ha ganado
+        if len(self._tablero_._fichas_fuera_["blanco"]) == 15:
+            self._juego_terminado_ = True
+            self._ganador_ = self._jugador2_
+            return        
+
