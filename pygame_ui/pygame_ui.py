@@ -18,3 +18,17 @@ class PygameUI:
 
         # Creamos una instancia del motor del juego, igual que en la CLI
         self._juego_ = BackgammonGame("Jugador 1 (Negras)", "Jugador 2 (Blancas)")
+    
+    def _dibujar_todo_(self):
+        """
+        Dibuja todos los elementos del juego en la pantalla.
+        (Por ahora, solo pinta el fondo).
+        """
+        # Pintamos el fondo de un color (ej. un verde oscuro tipo fieltro)
+        color_fondo = (0, 51, 0)
+        self._pantalla_.fill(color_fondo)
+
+        # --- Aquí irá el código para dibujar el tablero, fichas, etc. ---
+
+        # Actualizamos la pantalla para mostrar los cambios
+        pygame.display.flip()
