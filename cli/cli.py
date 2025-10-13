@@ -115,6 +115,14 @@ class CLI:
             # Cambiamos de jugador para el siguiente turno
             self._juego_.cambiar_jugador()
 
+            # --- INTEGRACIÓN DE LA CONDICIÓN DE VICTORIA ---
+            # Después de que un jugador completa su turno, verificamos si ha ganado
+            self._juego_._verificar_ganador_()
+            
+            # Si el juego no ha terminado, cambiamos de jugador
+            if not self._juego_._juego_terminado_:
+                self._juego_.cambiar_jugador()
+
         print("¡Juego terminado!")
         if self._juego_._ganador_:
             print(f"El ganador es: {self._juego_._ganador_._nombre_}")        
