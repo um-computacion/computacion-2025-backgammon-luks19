@@ -1,5 +1,6 @@
 import pygame
 from core.backgammon_game import BackgammonGame
+from .board_renderer import BoardRenderer
 
 class PygameUI:
     """
@@ -18,7 +19,11 @@ class PygameUI:
 
         # Creamos una instancia del motor del juego, igual que en la CLI
         self._juego_ = BackgammonGame("Jugador 1 (Negras)", "Jugador 2 (Blancas)")
+
+        # Asumimos que la imagen se llama 'board.png' y está en 'assets/'
+        self._board_renderer_ = BoardRenderer("assets/board.png")
     
+
     def _dibujar_todo_(self):
         """
         Dibuja todos los elementos del juego en la pantalla.
@@ -28,7 +33,8 @@ class PygameUI:
         color_fondo = (0, 51, 0)
         self._pantalla_.fill(color_fondo)
 
-        # --- Aquí irá el código para dibujar el tablero, fichas, etc. ---
+        # --- 3. LLAMAR AL MÉTODO DE DIBUJO DEL RENDERER ---
+        self._board_renderer_.dibujar(self._pantalla_)
 
         # Actualizamos la pantalla para mostrar los cambios
         pygame.display.flip()

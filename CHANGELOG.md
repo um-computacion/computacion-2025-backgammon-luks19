@@ -1,6 +1,24 @@
 # Changelog
 Todos los cambios notables del proyecto van a ser documentados en este archivo.
 
+## [15/10/2024]
+### Agregado
+- Nueva clase Board para gestionar el tablero de juego
+- Métodos para el dibujo y renderizado del tablero en la interfaz gráfica
+
+## [14/10/2024]
+### Agregado
+- Método para el inicio y gestión de la interfaz gráfica
+- Bases para la futura estructura del proyecto
+### Cambiado
+- Refactor completo del archivo Main.py
+
+## [13/10/2024]
+### Agregado
+- Método para verificar el ganador del juego
+- Integración de la condición de victoria en la interfaz de línea de comandos (CLI)
+- Inicio del desarrollo con Pygame para la interfaz gráfica
+
 ## [30/09/2024]
 ### Agregado
 - Método para verificar condiciones de finalización del juego
