@@ -32,3 +32,17 @@ class PygameUI:
 
         # Actualizamos la pantalla para mostrar los cambios
         pygame.display.flip()
+
+    def run(self):
+        """
+        Inicia y gestiona el bucle principal de la interfaz gráfica.
+        """
+        self._juego_.iniciar_juego()
+        corriendo = True
+
+        while corriendo:
+            # 1. Manejo de Eventos
+            for evento in pygame.event.get():
+                # Si el usuario cierra la ventana
+                if evento.type == pygame.QUIT:
+                    corriendo = False    
