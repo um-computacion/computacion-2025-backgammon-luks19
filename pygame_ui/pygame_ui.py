@@ -46,3 +46,11 @@ class PygameUI:
                 # Si el usuario cierra la ventana
                 if evento.type == pygame.QUIT:
                     corriendo = False    
+
+            # 2. Lógica del juego (por ahora no hay)
+
+            # 3. Dibujar en la pantalla
+            self._dibujar_todo_()
+
+        # Cuando el bucle termina, salimos de Pygame
+        pygame.quit()
