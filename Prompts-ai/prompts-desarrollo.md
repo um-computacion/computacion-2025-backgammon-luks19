@@ -230,3 +230,84 @@
 - **Indicación de uso:** **Usado con modificaciones.** Adopté completamente la idea de crear un archivo `config.py` separado. Utilicé la estructura propuesta como base, pero rellené y ajusté yo mismo todas las coordenadas `X` e `Y` para que coincidieran perfectamente con mi imagen de tablero. También añadí las coordenadas para la barra y las zonas de "bear-off".
 
 - **Referencia a los archivos finales:** `pygame_ui/config.py`, `pygame_ui/pygame_ui.py`.
+
+## Prompt 5: Estrategia para Mapear Clics de Ratón a Puntos del Tablero
+
+- **Modelo / herramienta usada:** claude
+
+- **Prompt mío:**
+  > Ya tenemos el tablero y las fichas dibujadas en Pygame. Ahora necesito implementar la interacción del usuario. Mi objetivo es que, cuando el usuario haga clic en la pantalla, el programa sepa en qué punto lógico del tablero (del 1 al 24) ha hecho clic. ¿Cuál sería una buena estrategia para "traducir" las coordenadas `(x, y)` del ratón a un número de punto? No quiero usar una cadena gigante de `if/elif` para comprobar las coordenadas, me parece poco elegante.
+
+- **Respuesta:**
+  > ¡Excelente pregunta! Evitar una cadena de `if/elif` es la decisión correcta. La solución profesional y más mantenible es crear una función que calcule esto de forma dinámica usando "rectángulos de colisión".
+  >
+  > Te propongo implementar esta lógica en dos partes: un nuevo método en tu clase `PygameUI` y una actualización de tu bucle de eventos en el método `run`.
+  >
+  > **1. Método de "Traducción" de Coordenadas:**
+  >
+  > Añade este método a tu clase `PygameUI`. Itera sobre las coordenadas de tu archivo `config` y usa `pygame.Rect` junto con `collidepoint()` para encontrar el punto clickeado.
+  >
+  > ```python
+  > # Dentro de la clase PygameUI
+  > 
+  > def _obtener_punto_desde_coordenadas(self, pos: tuple[int, int]) -> int | None:
+  >     """
+  >     Toma una tupla de coordenadas (x, y) del ratón y devuelve el número
+  >     del punto del tablero que fue clickeado, o None si no se hizo clic en ningún punto.
+  >     """
+  >     x_clic, y_clic = pos
+  >
+  >     for punto_num, (x_punto, y_base_punto) in config.COORDENADAS_PUNTOS.items():
+  >         # Creamos un rectángulo "sensible" para cada punto del tablero.
+  >         ancho_colision = config.TAMANO_FICHA
+  >         alto_colision = config.ALTO_TABLERO / 2
+  >
+  >         if y_base_punto > config.ALTO_VENTANA / 2: # Puntos de la fila inferior
+  >             rect_punto = pygame.Rect(x_punto - ancho_colision / 2, config.OFFSET_Y + alto_colision, ancho_colision, alto_colision)
+  >         else: # Puntos de la fila superior
+  >             rect_punto = pygame.Rect(x_punto - ancho_colision / 2, config.OFFSET_Y, ancho_colision, alto_colision)
+  >
+  >         # Verificamos si el clic ocurrió dentro de este rectángulo
+  >         if rect_punto.collidepoint(x_clic, y_clic):
+  >             return punto_num
+  >     
+  >     return None
+  > ```
+  >
+  > **2. Integración en el Bucle Principal:**
+  >
+  > Ahora, modifica tu método `run` para que, dentro del bucle de eventos, detecte el clic del ratón y llame a la función que acabamos de crear.
+  >
+  > ```python
+  > # Dentro de la clase PygameUI, reemplaza el método run
+  > 
+  > def run(self):
+  >     self._juego_.iniciar_juego()
+  >     corriendo = True
+  >
+  >     while corriendo:
+  >         for evento in pygame.event.get():
+  >             if evento.type == pygame.QUIT:
+  >                 corriendo = False
+  >             
+  >             # --- LÓGICA DE DETECCIÓN DE CLIC ---
+  >             if evento.type == pygame.MOUSEBUTTONDOWN:
+  >                 if evento.button == 1: # Clic izquierdo
+  >                     pos_clic = pygame.mouse.get_pos()
+  >                     punto_clickeado = self._obtener_punto_desde_coordenadas(pos_clic)
+  >                     
+  >                     if punto_clickeado is not None:
+  >                         print(f"Se hizo clic en el punto: {punto_clickeado}")
+  >                     else:
+  >                         print("Se hizo clic fuera de cualquier punto.")
+  >
+  >         self._dibujar_todo_()
+  >
+  >     pygame.quit()
+  > ```
+  >
+  > Este enfoque es mucho más limpio porque la lógica está contenida en un solo método, es fácil de depurar y se adapta automáticamente si en el futuro ajustas las coordenadas en tu archivo `config.py`.
+
+- **Indicación de uso:** **Usado sin cambios.** La idea y el código para usar `pygame.Rect` y `collidepoint()` fueron implementados tal cual. Creé el método `_obtener_punto_desde_coordenadas` y actualicé el método `run` para manejar los clics del ratón.
+
+- **Referencia a los archivos finales:** `pygame_ui/pygame_ui.py`
