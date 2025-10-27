@@ -26,17 +26,34 @@ class PygameUI:
 
     def _dibujar_todo_(self):
         """
-        Dibuja todos los elementos del juego en la pantalla.
-        (Por ahora, solo pinta el fondo).
+        Dibuja todos los elementos del juego en la pantalla usando la configuración.
         """
-        # Pintamos el fondo de un color (ej. un verde oscuro tipo fieltro)
         color_fondo = (0, 51, 0)
         self._pantalla_.fill(color_fondo)
-
-        # --- 3. LLAMAR AL MÉTODO DE DIBUJO DEL RENDERER ---
         self._board_renderer_.dibujar(self._pantalla_)
 
-        # Actualizamos la pantalla para mostrar los cambios
+        # --- LÓGICA PARA DIBUJAR LAS FICHAS ---
+        tablero_logico = self._juego_._tablero_
+        for punto_num, fichas in tablero_logico._puntos_.items():
+            if not fichas:
+                continue
+            
+            # Obtenemos las coordenadas base desde tu config
+            x, y_base = config.COORDENADAS_PUNTOS[punto_num]
+            color_ficha = fichas[0].obtener_color()
+            
+            # Apilamos las fichas
+            for i, ficha in enumerate(fichas):
+                # Corrección de la dirección de apilamiento
+                if y_base > config.ALTO_VENTANA / 2: # Fila inferior
+                    # Apilamos hacia ARRIBA (restando y)
+                    y = y_base - (i * config.ESPACIADO_FICHAS)
+                else: # Fila superior
+                    # Apilamos hacia ABAJO (sumando y)
+                    y = y_base + (i * config.ESPACIADO_FICHAS)
+                
+                self._checker_renderer_.dibujar(self._pantalla_, color_ficha, x, y)
+        
         pygame.display.flip()
 
     def run(self):

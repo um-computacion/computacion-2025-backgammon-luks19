@@ -141,3 +141,92 @@
 - **Indicación de uso:** **Usado sin cambios.** La recomendación fue fundamental para entender cómo testear correctamente la inicialización de una clase que contiene otras clases. Adopté el uso de `assert isinstance()` en `tests/test_backgammon_game.py` para asegurar que los tests estuvieran desacoplados y fueran más robustos.
 
 - **Referencia a los archivos finales:** `tests/test_backgammon_game.py`
+
+## Prompt 4: Diseño de un Sistema de Coordenadas para la UI de Pygame
+
+- **Modelo / herramienta usada:** claude
+
+- **Prompt mío:**
+  > Hola, estoy trabajando en la interfaz de Pygame. Ya tenemos el tablero dibujado, pero ahora necesito dibujar las fichas en sus posiciones. Mi primera idea es simplemente poner las coordenadas (x, y) de cada punto directamente en el código de dibujo, pero siento que eso será un desastre de mantener. Si necesito ajustar una posición, tendría que buscarla en medio de toda la lógica. ¿Existe una forma más profesional u organizada de manejar este "mapeo" de los puntos lógicos del juego a las coordenadas visuales en la pantalla?
+
+- **Respuesta:**
+  > ¡Esa es una pregunta de arquitectura de software excelente! Tienes toda la razón, poner coordenadas "mágicas" directamente en el código de dibujo es una muy mala práctica que lleva a un código frágil y difícil de mantener.
+  >
+  > La solución profesional es **externalizar toda esa información a un archivo de configuración dedicado**. Crearemos un archivo que actuará como la "única fuente de la verdad" para todas las constantes visuales.
+  >
+  > Te propongo la siguiente estructura:
+  >
+  > 1.  **Crear un `pygame_ui/config.py`:** Este archivo contendrá todas las constantes. Será mucho más robusto si calculamos las coordenadas finales basándonos en el tamaño de la ventana y la posición del tablero.
+  > 2.  **Actualizar `pygame_ui.py`:** La clase principal de la UI importará este archivo de configuración y lo usará para saber dónde dibujar cada cosa.
+  >
+  > Aquí tienes el código para implementar esta idea.
+  >
+  > **1. Código para `pygame_ui/config.py`:**
+  >
+  > ```python
+  > """
+  > Configuración de coordenadas para el tablero de Backgammon.
+  > Ajustado para una imagen de 448x448 píxeles centrada en una ventana de 800x600.
+  > """
+  > # Dimensiones de la ventana y el tablero
+  > ANCHO_VENTANA = 800
+  > ALTO_VENTANA = 600
+  > ANCHO_TABLERO = 448
+  > ALTO_TABLERO = 448
+  > 
+  > # Offset del tablero (para centrarlo)
+  > OFFSET_X = (ANCHO_VENTANA - ANCHO_TABLERO) // 2
+  > OFFSET_Y = (ALTO_VENTANA - ALTO_TABLERO) // 2
+  > 
+  > # Tamaño de las fichas y espaciado
+  > TAMANO_FICHA = 35
+  > ESPACIADO_FICHAS = 30
+  > 
+  > # Coordenadas X de los puntos (relativas al borde izquierdo del tablero)
+  > PUNTO_1_X = 405
+  > # ... (resto de las coordenadas X)
+  > 
+  > # Coordenadas Y (relativas al borde superior del tablero)
+  > Y_SUPERIOR = 80
+  > Y_INFERIOR = 368
+  > 
+  > # Mapeo de número de punto a coordenadas (x, y) ABSOLUTAS
+  > COORDENADAS_PUNTOS = {
+  >     1: (OFFSET_X + PUNTO_1_X, OFFSET_Y + Y_INFERIOR),
+  >     # ... (resto del mapeo para los 24 puntos)
+  > }
+  > ```
+  >
+  > **2. Lógica de dibujo para `pygame_ui.py`:**
+  >
+  > ```python
+  > # Dentro del método _dibujar_todo_ de la clase PygameUI
+  > 
+  > # Importar el config al principio del archivo
+  > from . import config
+  > 
+  > # ...
+  > tablero_logico = self._juego_._tablero_
+  > for punto_num, fichas in tablero_logico._puntos_.items():
+  >     if not fichas:
+  >         continue
+  >     
+  >     # Obtenemos las coordenadas base desde el config
+  >     x, y_base = config.COORDENADAS_PUNTOS[punto_num]
+  >     color_ficha = fichas.obtener_color()
+  >     
+  >     # Apilamos las fichas
+  >     for i, ficha in enumerate(fichas):
+  >         if y_base > config.ALTO_VENTANA / 2: # Fila inferior
+  >             y = y_base - (i * config.ESPACIADO_FICHAS)
+  >         else: # Fila superior
+  >             y = y_base + (i * config.ESPACIADO_FICHAS)
+  >         
+  >         self._checker_renderer_.dibujar(self._pantalla_, color_ficha, x, y)
+  > ```
+  >
+  > Este enfoque separa completamente la "data" de la "lógica", lo cual es un principio de diseño excelente. Si alguna vez cambias la imagen del tablero, solo tendrás que ajustar el `config.py` sin tocar una sola línea de la lógica de dibujo.
+
+- **Indicación de uso:** **Usado con modificaciones.** Adopté completamente la idea de crear un archivo `config.py` separado. Utilicé la estructura propuesta como base, pero rellené y ajusté yo mismo todas las coordenadas `X` e `Y` para que coincidieran perfectamente con mi imagen de tablero. También añadí las coordenadas para la barra y las zonas de "bear-off".
+
+- **Referencia a los archivos finales:** `pygame_ui/config.py`, `pygame_ui/pygame_ui.py`.
