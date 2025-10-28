@@ -40,6 +40,23 @@ class PygameUI:
         pygame.draw.circle(superficie, color_rgb, centro, radio)
         pygame.draw.circle(superficie, LINEA, centro, radio, 2) # Borde
 
+    def _dibujar_info_turno_(self):
+        """
+        Muestra en pantalla el turno del jugador actual y sus tiradas de dados.
+        """
+        jugador_actual = self._juego_._jugador_actual_
+        tiradas = self._juego_._dados_._tiradas_disponibles_
+        
+        texto_turno = f"Turno de: {jugador_actual._nombre_}"
+        texto_dados = f"Tiradas: {tiradas}"
+        
+        img_turno = self._fuente_.render(texto_turno, True, LINEA)
+        img_dados = self._fuente_.render(texto_dados, True, LINEA)
+        
+        # Posicionamos el texto en la parte superior de la pantalla
+        self._pantalla_.blit(img_turno, (MARGEN_X, 10))
+        self._pantalla_.blit(img_dados, (ANCHO - MARGEN_X - img_dados.get_width(), 10))
+
     def _dibujar_tablero_y_fichas_(self):
         self._pantalla_.fill(COLOR_FONDO)
        
@@ -81,6 +98,8 @@ class PygameUI:
                 
                 self._dibujar_ficha_(self._pantalla_, (x_centro, y_centro), radio_ficha, color_rgb)
 
+                self._dibujar_info_turno_()
+
               
     
     def _obtener_punto_desde_area_(self, pos):
@@ -109,9 +128,13 @@ class PygameUI:
         self._juego_.iniciar_juego()
         corriendo = True
         punto_origen_seleccionado = None
+        
+        # Lanzamos los dados para el primer turno
+        self._juego_._dados_.lanzar()
 
         while corriendo:
             jugador_actual = self._juego_._jugador_actual_
+            tiradas_disponibles = self._juego_._dados_._tiradas_disponibles_
 
             for evento in pygame.event.get():
                 if evento.type == pygame.QUIT:
@@ -123,7 +146,6 @@ class PygameUI:
                     punto_clickeado = self._obtener_punto_desde_area_(evento.pos)
                     
                     if punto_clickeado is None:
-                        # Si se hace clic fuera, se cancela la selección
                         punto_origen_seleccionado = None
                         print("Selección cancelada.")
                         continue
@@ -140,16 +162,31 @@ class PygameUI:
                     else:
                         # --- 2. SEGUNDO CLIC: SELECCIONAR DESTINO Y MOVER ---
                         punto_destino = punto_clickeado
-                        print(f"Intentando mover de {punto_origen_seleccionado} a {punto_destino}")
-
-                        if self._juego_._tablero_.es_movimiento_valido(jugador_actual, punto_origen_seleccionado, punto_destino):
-                            self._juego_._tablero_.mover_ficha(punto_origen_seleccionado, punto_destino)
-                            print("Movimiento realizado.")
-                        else:
-                            print("Movimiento inválido.")
+                        origen = punto_origen_seleccionado
                         
-                        # Reiniciar selección para el próximo movimiento
+                        # --- VALIDACIÓN CON DADOS ---
+                        distancia = abs(punto_destino - origen)
+                        if distancia not in tiradas_disponibles:
+                            print(f"Movimiento inválido: La distancia ({distancia}) no coincide con las tiradas {tiradas_disponibles}.")
+                            punto_origen_seleccionado = None # Cancelar selección
+                            continue
+
+                        if self._juego_._tablero_.es_movimiento_valido(jugador_actual, origen, punto_destino):
+                            self._juego_._tablero_.mover_ficha(origen, punto_destino)
+                            self._juego_._dados_.usar_tirada(distancia) # "Gastamos" el dado
+                            print(f"Movimiento realizado. Tiradas restantes: {self._juego_._dados_._tiradas_disponibles_}")
+                        else:
+                            print("Movimiento inválido según las reglas del tablero.")
+                        
                         punto_origen_seleccionado = None
+
+            # --- LÓGICA DE CAMBIO DE TURNO ---
+            # Si el jugador se queda sin tiradas, es el turno del siguiente
+            if not self._juego_._dados_._tiradas_disponibles_:
+                print("-" * 20)
+                print("Turno completado.")
+                self._juego_.cambiar_jugador()
+                self._juego_._dados_.lanzar() # Lanzamos los dados para el nuevo jugador
 
             self._dibujar_tablero_y_fichas_()
             pygame.display.flip()
