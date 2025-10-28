@@ -11,6 +11,7 @@ TRIANGULO_B = (210, 170, 130)
 LINEA = (60, 60, 60)
 FICHA_BLANCA = (245, 245, 245)
 FICHA_NEGRA = (30, 30, 30)
+COLOR_RESALTADO = (255, 255, 0) # Amarillo para resaltar
 
 class PygameUI:
     def __init__(self):
@@ -57,7 +58,7 @@ class PygameUI:
         self._pantalla_.blit(img_turno, (MARGEN_X, 10))
         self._pantalla_.blit(img_dados, (ANCHO - MARGEN_X - img_dados.get_width(), 10))
 
-    def _dibujar_tablero_y_fichas_(self):
+    def _dibujar_tablero_y_fichas_(self, punto_seleccionado=None):
         self._pantalla_.fill(COLOR_FONDO)
        
 
@@ -99,6 +100,16 @@ class PygameUI:
                 self._dibujar_ficha_(self._pantalla_, (x_centro, y_centro), radio_ficha, color_rgb)
 
                 self._dibujar_info_turno_()
+
+                # Si esta es la última ficha del punto seleccionado, la resaltamos
+                if punto_num == punto_seleccionado and i == len(fichas) - 1:
+                    # Dibujamos un círculo amarillo un poco más grande debajo
+                    pygame.draw.circle(self._pantalla_, COLOR_RESALTADO, (x_centro, y_centro), radio_ficha + 4)
+
+                # Dibujamos la ficha normal encima
+                self._dibujar_ficha_(self._pantalla_, (x_centro, y_centro), radio_ficha, color_rgb)
+
+        self._dibujar_info_turno_()
 
               
     
@@ -188,7 +199,7 @@ class PygameUI:
                 self._juego_.cambiar_jugador()
                 self._juego_._dados_.lanzar() # Lanzamos los dados para el nuevo jugador
 
-            self._dibujar_tablero_y_fichas_()
+            self._dibujar_tablero_y_fichas_(punto_origen_seleccionado)
             pygame.display.flip()
             self._reloj_.tick(60)
         
