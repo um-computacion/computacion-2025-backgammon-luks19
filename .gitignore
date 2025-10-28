@@ -3,6 +3,7 @@ get-pip.py
 setup.py
 
 # Entorno virtual
+.venv/
 env/
 
 # Archivos de distribución/empaquetado de Python

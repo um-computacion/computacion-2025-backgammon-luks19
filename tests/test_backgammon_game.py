@@ -3,6 +3,7 @@ from core.backgammon_game import BackgammonGame
 from core.player import Player
 from core.board import Board
 from core.dice import Dice
+from core.checker import Checker 
 
 def test_creacion_del_juego():
     """
