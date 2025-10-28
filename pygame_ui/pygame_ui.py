@@ -1,152 +1,96 @@
 import pygame
 from core.backgammon_game import BackgammonGame
-from .board_renderer import BoardRenderer
+
+# --- Constantes Visuales 
+ANCHO, ALTO = 1000, 700
+MARGEN_X, MARGEN_Y = 40, 40
+COLOR_FONDO = (245, 239, 230)
+COLOR_TABLERO = (230, 220, 200)
+TRIANGULO_A = (170, 120, 90)
+TRIANGULO_B = (210, 170, 130)
+LINEA = (60, 60, 60)
+FICHA_BLANCA = (245, 245, 245)
+FICHA_NEGRA = (30, 30, 30)
 
 class PygameUI:
-    """
-    Gestiona la interfaz gráfica del juego utilizando Pygame.
-    """
-    def __init__(self, ancho: int = 800, alto: int = 600):
-        """
-        Inicializa Pygame, la ventana y los componentes del juego.
-        """
+    def __init__(self):
         pygame.init()
+        self._pantalla_ = pygame.display.set_mode((ANCHO, ALTO))
+        pygame.display.set_caption("Backgammon - L. Valdemoros")
+        self._reloj_ = pygame.time.Clock()
+        self._fuente_ = pygame.font.SysFont(None, 24)
+        self._juego_ = BackgammonGame("Jugador 1", "Jugador 2")
 
-        self._ancho_ = ancho
-        self._alto_ = alto
-        self._pantalla_ = pygame.display.set_mode((self._ancho_, self._alto_))
-        pygame.display.set_caption("Backgammon Computación 2025")
+    def _dibujar_triangulo_(self, superficie, rect_tablero, col_vis, fila, color):
+        ancho_triangulo = rect_tablero.width / 12.0
+        x0 = rect_tablero.left + col_vis * ancho_triangulo
+        x1 = x0 + ancho_triangulo
+        x_medio = (x0 + x1) / 2.0
 
-        # Creamos una instancia del motor del juego, igual que en la CLI
-        self._juego_ = BackgammonGame("Jugador 1 (Negras)", "Jugador 2 (Blancas)")
+        if fila == 'top':
+            y_punta = rect_tablero.top + rect_tablero.height * 0.45
+            puntos = [(x0, rect_tablero.top), (x1, rect_tablero.top), (x_medio, y_punta)]
+        else: # 'bottom'
+            y_punta = rect_tablero.bottom - rect_tablero.height * 0.45
+            puntos = [(x0, rect_tablero.bottom), (x1, rect_tablero.bottom), (x_medio, y_punta)]
+        pygame.draw.polygon(superficie, color, puntos)
 
-        # Asumimos que la imagen se llama 'board.png' y está en 'assets/'
-        self._board_renderer_ = BoardRenderer("assets/board.png")
+    def _dibujar_ficha_(self, superficie, centro, radio, color_rgb):
+        pygame.draw.circle(superficie, color_rgb, centro, radio)
+        pygame.draw.circle(superficie, LINEA, centro, radio, 2) # Borde
 
-        # --- NUEVA VARIABLE DE ESTADO PARA LA UI ---
-        # Guarda el punto de origen del primer clic del jugador
-        self._punto_origen_seleccionado_ = None
-    
+    def _dibujar_tablero_y_fichas_(self):
+        self._pantalla_.fill(COLOR_FONDO)
+        rect_tablero = pygame.Rect(MARGEN_X, MARGEN_Y, ANCHO - 2 * MARGEN_X, ALTO - 2 * MARGEN_Y)
+        pygame.draw.rect(self._pantalla_, COLOR_TABLERO, rect_tablero)
+        
+        # Dibujar los 24 triángulos
+        for i in range(12):
+            self._dibujar_triangulo_(self._pantalla_, rect_tablero, i, 'top', TRIANGULO_A if i % 2 == 0 else TRIANGULO_B)
+            self._dibujar_triangulo_(self._pantalla_, rect_tablero, i, 'bottom', TRIANGULO_B if i % 2 == 0 else TRIANGULO_A)
 
-    def _dibujar_todo_(self):
-        """
-        Dibuja todos los elementos del juego en la pantalla usando la configuración.
-        """
-        color_fondo = (0, 51, 0)
-        self._pantalla_.fill(color_fondo)
-        self._board_renderer_.dibujar(self._pantalla_)
+        # Dibujar las fichas desde la lógica del core
+        ancho_triangulo = rect_tablero.width / 12.0
+        radio_ficha = int(ancho_triangulo * 0.4)
 
-        # --- LÓGICA PARA DIBUJAR LAS FICHAS ---
-        tablero_logico = self._juego_._tablero_
-        for punto_num, fichas in tablero_logico._puntos_.items():
+        for punto_num, fichas in self._juego_._tablero_._puntos_.items():
             if not fichas:
                 continue
-            
-            # Obtenemos las coordenadas base desde tu config
-            x, y_base = config.COORDENADAS_PUNTOS[punto_num]
+
             color_ficha = fichas[0].obtener_color()
+            color_rgb = FICHA_BLANCA if color_ficha == "blanco" else FICHA_NEGRA
             
-            # Apilamos las fichas
+            # Convertir punto lógico (1-24) a columna visual (0-11) y fila ('top'/'bottom')
+            if 1 <= punto_num <= 12: # Fila inferior
+                fila = 'bottom'
+                col_vis = punto_num - 1
+            else: # Fila superior (13-24)
+                fila = 'top'
+                col_vis = 24 - punto_num
+            
+            x_centro = rect_tablero.left + col_vis * ancho_triangulo + ancho_triangulo / 2
+
             for i, ficha in enumerate(fichas):
-                # Corrección de la dirección de apilamiento
-                if y_base > config.ALTO_VENTANA / 2: # Fila inferior
-                    # Apilamos hacia ARRIBA (restando y)
-                    y = y_base - (i * config.ESPACIADO_FICHAS)
-                else: # Fila superior
-                    # Apilamos hacia ABAJO (sumando y)
-                    y = y_base + (i * config.ESPACIADO_FICHAS)
+                if fila == 'bottom':
+                    y_centro = rect_tablero.bottom - radio_ficha - (i * radio_ficha * 2)
+                else: # 'top'
+                    y_centro = rect_tablero.top + radio_ficha + (i * radio_ficha * 2)
                 
-                self._checker_renderer_.dibujar(self._pantalla_, color_ficha, x, y)
-        
-        pygame.display.flip()
+                self._dibujar_ficha_(self._pantalla_, (x_centro, y_centro), radio_ficha, color_rgb)
 
     def run(self):
-        """
-        Inicia y gestiona el bucle principal del juego con selección y movimiento.
-        """
         self._juego_.iniciar_juego()
         corriendo = True
-
         while corriendo:
-            jugador_actual = self._juego_._jugador_actual_
-            
-            # 1. Manejo de Eventos
             for evento in pygame.event.get():
                 if evento.type == pygame.QUIT:
                     corriendo = False
-                
-                if evento.type == pygame.MOUSEBUTTONDOWN and evento.button == 1:
-                    pos_clic = pygame.mouse.get_pos()
-                    punto_clickeado = self._obtener_punto_desde_coordenadas(pos_clic)
+                if evento.type == pygame.KEYDOWN and (evento.key == pygame.K_ESCAPE or evento.key == pygame.K_q):
+                    corriendo = False
 
-                    if punto_clickeado is not None:
-                        # --- LÓGICA DE SELECCIÓN Y MOVIMIENTO ---
-                        
-                        if self._punto_origen_seleccionado_ is None:
-                            # PRIMER CLIC: El jugador selecciona una ficha de origen.
-                            print(f"Primer clic: Origen seleccionado en el punto {punto_clickeado}.")
-                            # Aquí podríamos añadir lógica para verificar si hay fichas del jugador
-                            self._punto_origen_seleccionado_ = punto_clickeado
-                        
-                        else:
-                            # SEGUNDO CLIC: El jugador selecciona un destino.
-                            punto_destino = punto_clickeado
-                            print(f"Segundo clic: Destino seleccionado en el punto {punto_destino}.")
-                            
-                            # --- Conexión con el CORE ---
-                            origen = self._punto_origen_seleccionado_
-                            
-                            if self._juego_._tablero_.es_movimiento_valido(jugador_actual, origen, punto_destino):
-                                # Aquí faltaría la lógica para validar contra los dados.
-                                # Por ahora, si es válido según el tablero, lo movemos.
-                                print(f"Movimiento válido. Moviendo de {origen} a {punto_destino}.")
-                                self._juego_._tablero_.mover_ficha(origen, punto_destino)
-                            else:
-                                print("Movimiento inválido según las reglas del tablero.")
-                            
-                            # Reiniciamos la selección para el próximo movimiento
-                            self._punto_origen_seleccionado_ = None
-
-            # 2. Lógica del juego (por ahora, no cambia de turno automáticamente)
-
-            # 3. Dibujar en la pantalla
-            self._dibujar_todo_()
-
+            self._dibujar_tablero_y_fichas_()
+            pygame.display.flip()
+            self._reloj_.tick(60)
+        
         pygame.quit()
 
-    def _obtener_punto_desde_coordenadas(self, pos: tuple[int, int]) -> int | None:
-        """
-        Toma una tupla de coordenadas (x, y) del ratón y devuelve el número
-        del punto del tablero que fue clickeado, o None si no se hizo clic en ningún punto.
-        """
-        x_clic, y_clic = pos
-
-        for punto_num, (x_punto, y_base_punto) in config.COORDENADAS_PUNTOS.items():
-            # Creamos un rectángulo "sensible" para cada punto del tablero.
-            # El ancho es el tamaño de la ficha, y el alto es la mitad del tablero.
-            ancho_colision = config.TAMANO_FICHA
-            alto_colision = config.ALTO_TABLERO / 2
-
-            if y_base_punto > config.ALTO_VENTANA / 2: # Puntos de la fila inferior
-                # El rectángulo empieza en la parte superior del tablero y va hacia abajo
-                rect_punto = pygame.Rect(
-                    x_punto - ancho_colision / 2, 
-                    config.OFFSET_Y + alto_colision, 
-                    ancho_colision, 
-                    alto_colision
-                )
-            else: # Puntos de la fila superior
-                # El rectángulo empieza en el borde y va hacia el centro
-                rect_punto = pygame.Rect(
-                    x_punto - ancho_colision / 2, 
-                    config.OFFSET_Y, 
-                    ancho_colision, 
-                    alto_colision
-                )
-
-            # Verificamos si el clic ocurrió dentro de este rectángulo
-            if rect_punto.collidepoint(x_clic, y_clic):
-                return punto_num
-        
-        # Si el bucle termina y no se encontró ningún punto
-        return None
