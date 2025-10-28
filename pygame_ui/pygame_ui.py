@@ -20,6 +20,7 @@ class PygameUI:
         self._reloj_ = pygame.time.Clock()
         self._fuente_ = pygame.font.SysFont(None, 24)
         self._juego_ = BackgammonGame("Jugador 1", "Jugador 2")
+       
 
     def _dibujar_triangulo_(self, superficie, rect_tablero, col_vis, fila, color):
         ancho_triangulo = rect_tablero.width / 12.0
@@ -41,6 +42,8 @@ class PygameUI:
 
     def _dibujar_tablero_y_fichas_(self):
         self._pantalla_.fill(COLOR_FONDO)
+       
+
         rect_tablero = pygame.Rect(MARGEN_X, MARGEN_Y, ANCHO - 2 * MARGEN_X, ALTO - 2 * MARGEN_Y)
         pygame.draw.rect(self._pantalla_, COLOR_TABLERO, rect_tablero)
         
@@ -78,19 +81,78 @@ class PygameUI:
                 
                 self._dibujar_ficha_(self._pantalla_, (x_centro, y_centro), radio_ficha, color_rgb)
 
+              
+    
+    def _obtener_punto_desde_area_(self, pos):
+        """
+        Devuelve el número del punto (1-24) bajo las coordenadas del clic.
+        """
+        rect_tablero = pygame.Rect(MARGEN_X, MARGEN_Y, ANCHO - 2 * MARGEN_X, ALTO - 2 * MARGEN_Y)
+        ancho_triangulo = rect_tablero.width / 12.0
+        mx, my = pos
+
+        if not rect_tablero.collidepoint(mx, my):
+            return None
+
+        col_vis = int((mx - rect_tablero.left) / ancho_triangulo)
+        
+        if my > rect_tablero.centery:
+            # Clic en la fila inferior (puntos 1-12)
+            punto_num = col_vis + 1
+        else:
+            # Clic en la fila superior (puntos 13-24)
+            punto_num = 24 - col_vis
+            
+        return punto_num
+
     def run(self):
         self._juego_.iniciar_juego()
         corriendo = True
+        punto_origen_seleccionado = None
+
         while corriendo:
+            jugador_actual = self._juego_._jugador_actual_
+
             for evento in pygame.event.get():
                 if evento.type == pygame.QUIT:
                     corriendo = False
                 if evento.type == pygame.KEYDOWN and (evento.key == pygame.K_ESCAPE or evento.key == pygame.K_q):
                     corriendo = False
+                
+                if evento.type == pygame.MOUSEBUTTONDOWN and evento.button == 1:
+                    punto_clickeado = self._obtener_punto_desde_area_(evento.pos)
+                    
+                    if punto_clickeado is None:
+                        # Si se hace clic fuera, se cancela la selección
+                        punto_origen_seleccionado = None
+                        print("Selección cancelada.")
+                        continue
+
+                    if punto_origen_seleccionado is None:
+                        # --- 1. PRIMER CLIC: SELECCIONAR ORIGEN ---
+                        fichas_en_punto = self._juego_._tablero_._puntos_[punto_clickeado]
+                        if fichas_en_punto and fichas_en_punto[-1].obtener_color() == jugador_actual._color_:
+                            punto_origen_seleccionado = punto_clickeado
+                            print(f"Ficha seleccionada en el punto {punto_origen_seleccionado}")
+                        else:
+                            print("Punto vacío o con fichas del oponente. No se puede seleccionar.")
+                    
+                    else:
+                        # --- 2. SEGUNDO CLIC: SELECCIONAR DESTINO Y MOVER ---
+                        punto_destino = punto_clickeado
+                        print(f"Intentando mover de {punto_origen_seleccionado} a {punto_destino}")
+
+                        if self._juego_._tablero_.es_movimiento_valido(jugador_actual, punto_origen_seleccionado, punto_destino):
+                            self._juego_._tablero_.mover_ficha(punto_origen_seleccionado, punto_destino)
+                            print("Movimiento realizado.")
+                        else:
+                            print("Movimiento inválido.")
+                        
+                        # Reiniciar selección para el próximo movimiento
+                        punto_origen_seleccionado = None
 
             self._dibujar_tablero_y_fichas_()
             pygame.display.flip()
             self._reloj_.tick(60)
         
         pygame.quit()
-
