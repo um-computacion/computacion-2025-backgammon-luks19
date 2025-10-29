@@ -1,6 +1,27 @@
 # Changelog
 Todos los cambios notables del proyecto van a ser documentados en este archivo.
 
+## [29/10/2024]
+### Agregado
+- Método para el resultado de la ficha seleccionada para mejorar la jugabilidad del usuario.
+- Testeo completo del sistema de clics en el tablero.
+- Reporte de cobertura de código para evaluar la calidad del testing.
+
+## [28/10/2024]
+### Cambiado
+- Reestructuración completa del código según indicaciones de los profesores.
+- Implementación de la lógica de turnos y sistema de dados.
+- Desarrollo mejorado de PyGame aplicando lógica de clips y movimientos de fichas.
+### Corregido
+- Error del entorno virtual que impedía la ejecución correcta del juego.
+
+## [27/10/2024]
+### Agregado
+- Actualización del método `run` principal del juego.
+- Definición de método para la interacción del usuario.
+- Implementación de prompt de desarrollo.
+- Configuración de coordenadas del tablero y métodos auxiliares.
+
 ## [15/10/2024]
 ### Agregado
 - Nueva clase Board para gestionar el tablero de juego
