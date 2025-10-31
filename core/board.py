@@ -127,30 +127,24 @@ class Board:
         return True
     
     def puede_sacar_fichas(self, jugador: Player) -> bool:
-        """
-        Verifica si el jugador tiene todas sus fichas en su home board.
-        """
         color = jugador._color_
-        fichas_en_juego = 0
-        fichas_en_home_board = 0
+        if self._barra_[color]: # Si hay fichas en la barra, no puede sacar
+            return False
 
         if color == "blanco":
-            # Home board de las blancas: puntos 1-6
-            home_board_range = range(1, 7)
+        # Para las blancas, revisar puntos 7 a 24
+           rango_fuera_de_casa = range(7, 25)
         else: # "negro"
-            # Home board de las negras: puntos 19-24
-            home_board_range = range(19, 25)
+        # Para las negras, revisar puntos 1 a 18
+           rango_fuera_de_casa = range(1, 19)
 
-        for i in range(1, 25):
+        # Si encuentra UNA SOLA ficha de su color fuera del home board, no puede sacar.
+        for i in rango_fuera_de_casa:
             for ficha in self._puntos_[i]:
                 if ficha.obtener_color() == color:
-                    fichas_en_juego += 1
-                    if i in home_board_range:
-                        fichas_en_home_board += 1
-        
-        # Todas las fichas en juego deben estar en el home board.
-        # También nos aseguramos de que no haya fichas en la barra.
-        return fichas_en_juego == fichas_en_home_board and not self._barra_[color]
+                   return False # Encontramos una ficha fuera de lugar
+    
+        return True # Si el bucle termina, todas las fichas están en casa
 
     def sacar_ficha(self, punto_origen: int):
         """
