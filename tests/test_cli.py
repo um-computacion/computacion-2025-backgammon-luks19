@@ -22,5 +22,3 @@ def test_mostrar_tablero_inicial(capsys):
     assert "12 a 1:" in salida_capturada
     assert "13 a 24:" in salida_capturada
 
-
-hol 

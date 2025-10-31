@@ -28,11 +28,11 @@ class Dice:
             # Caso normal: 2 movimientos
             self._tiradas_disponibles_ = [self._valor_dado1_, self._valor_dado2_]
 
-    def obtener_valores(self) -> tuple:
+    def obtener_valores(self) -> tuple[int | None, int | None]:
         """Devuelve una tupla con los valores de la tirada."""
         return (self._valor_dado1_, self._valor_dado2_)
 
-    def obtener_tiradas_disponibles(self) -> list:
+    def obtener_tiradas_disponibles(self) -> list[int]:
         """Devuelve la lista de movimientos que quedan por usar."""
         return self._tiradas_disponibles_
 
@@ -48,4 +48,6 @@ class Dice:
 
     def reiniciar(self):
         """Reinicia los dados a su estado inicial antes de una nueva tirada."""
-        self.__init__()
+        self._valor_dado1_ = None
+        self._valor_dado2_ = None
+        self._tiradas_disponibles_ = []
