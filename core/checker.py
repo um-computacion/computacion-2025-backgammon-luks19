@@ -1,30 +1,23 @@
-class Checker:
+import pytest
+from core.checker import Checker
+
+# Test para la creación e inicialización de la Ficha
+def test_creacion_checker():
     """
-    Representa una única ficha de Backgammon (Checker).
-    Almacena su color y su posición actual en el tablero.
+    Verifica que una instancia de Checker se crea correctamente
+    con el atributo _color_ y sin el atributo _posicion_.
     """
-    def __init__(self, color: str, posicion_inicial: int = None):
-        """
-        Inicializa una ficha con un color y una posición opcional.
-        Los atributos y métodos siguen la convención de nombres en español.
-        """
-        self._color_ = color
-        self._posicion_ = posicion_inicial
+    ficha = Checker(color="blanco")
+    assert ficha._color_ == "blanco"
+    # Se verifica que el atributo de posición no existe, o que la inicialización
+    # no requiere ni acepta un argumento de posición.
+    with pytest.raises(AttributeError):
+        _ = ficha._posicion_
 
-    def obtener_color(self) -> str:
-        """
-        Devuelve el color de la ficha.
-        """
-        return self._color_
-
-    def obtener_posicion(self) -> int:
-        """
-        Devuelve la posición actual de la ficha.
-        """
-        return self._posicion_
-
-    def establecer_posicion(self, nueva_posicion: int):
-        """
-        Actualiza la posición de la ficha.
-        """
-        self._posicion_ = nueva_posicion
+# Test para el método obtener_color
+def test_obtener_color():
+    """
+    Verifica que el método obtener_color() devuelve el color correcto.
+    """
+    ficha = Checker(color="negro")
+    assert ficha.obtener_color() == "negro"

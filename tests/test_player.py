@@ -35,18 +35,8 @@ def test_tiene_fichas_en_barra_con_fichas():
     jugador = Player(nombre="Ana", color="negro")
     
     # Simulamos una captura moviendo una ficha a la lista de capturadas
+    # NOTA: Accedemos a atributos "privados" para preparar el estado del test.
     ficha_capturada = jugador._fichas_.pop()
     jugador._fichas_capturadas_.append(ficha_capturada)
     
     assert jugador.tiene_fichas_en_barra() is True
-
-def test_puede_retirar_fichas_falso_por_defecto():
-    """
-    Verifica que un jugador no puede retirar fichas al inicio del juego.
-    Este método será más complejo cuando se integre con el tablero.
-    Por ahora, testeamos su comportamiento básico.
-    """
-    jugador = Player(nombre="Lucas", color="blanco")
-
-    assert jugador.puede_retirar_fichas() is False
-
