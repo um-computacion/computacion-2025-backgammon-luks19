@@ -24,36 +24,37 @@ class Board:
 
     def configurar_tablero_inicial(self):
         """
-        Coloca las 30 fichas en sus posiciones de inicio según las reglas estándar.
+        Coloca las 30 fichas en sus posiciones de inicio según las reglas estándar,
+        utilizando el método simplificado agregar_ficha.
         """
         # Limpiamos el tablero por si acaso
-        self.__init__()
+        self._puntos_ = {i: [] for i in range(1, 25)}
+        self._barra_ = {"blanco": [], "negro": []}
+        self._fichas_fuera_ = {"blanco": [], "negro": []}
 
         # Colocación de fichas negras
-        self.agregar_ficha(Checker(color="negro"), 1, cantidad=2)
-        self.agregar_ficha(Checker(color="negro"), 12, cantidad=5)
-        self.agregar_ficha(Checker(color="negro"), 17, cantidad=3)
-        self.agregar_ficha(Checker(color="negro"), 19, cantidad=5)
+        for _ in range(2): self.agregar_ficha(Checker(color="negro"), 1)
+        for _ in range(5): self.agregar_ficha(Checker(color="negro"), 12)
+        for _ in range(3): self.agregar_ficha(Checker(color="negro"), 17)
+        for _ in range(5): self.agregar_ficha(Checker(color="negro"), 19)
 
         # Colocación de fichas blancas
-        self.agregar_ficha(Checker(color="blanco"), 24, cantidad=2)
-        self.agregar_ficha(Checker(color="blanco"), 13, cantidad=5)
-        self.agregar_ficha(Checker(color="blanco"), 8, cantidad=3)
-        self.agregar_ficha(Checker(color="blanco"), 6, cantidad=5)
+        for _ in range(2): self.agregar_ficha(Checker(color="blanco"), 24)
+        for _ in range(5): self.agregar_ficha(Checker(color="blanco"), 13)
+        for _ in range(3): self.agregar_ficha(Checker(color="blanco"), 8)
+        for _ in range(5): self.agregar_ficha(Checker(color="blanco"), 6)
 
-    def agregar_ficha(self, ficha: Checker, punto: int, cantidad: int = 1):
+    def agregar_ficha(self, ficha: Checker, punto: int):
         """
-        Agrega una o más fichas de un tipo a un punto específico.
+        Agrega UNA ficha a un punto específico del tablero.
+        Actualiza la posición interna de la ficha.
         """
-        if cantidad == 1:
-            # Para una sola ficha, usamos la ficha pasada como parámetro
-            ficha.establecer_posicion(punto)
-            self._puntos_[punto].append(ficha)
-        else:
-            # Para múltiples fichas, creamos nuevas instancias
-            for _ in range(cantidad):
-                nueva_ficha = Checker(color=ficha.obtener_color(), posicion_inicial=punto)
-                self._puntos_[punto].append(nueva_ficha)
+        # Validamos que el punto sea correcto para evitar errores
+        if punto not in self._puntos_:
+            return  # O lanzar un error, pero por ahora es suficiente con no hacer nada
+
+        ficha.establecer_posicion(punto)
+        self._puntos_[punto].append(ficha)
 
     def agregar_a_barra(self, ficha: Checker):
         """
