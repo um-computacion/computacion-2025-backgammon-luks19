@@ -156,3 +156,11 @@ class Board:
         ficha = self._puntos_[punto_origen].pop()
         color = ficha.obtener_color()
         self._fichas_fuera_[color].append(ficha)
+
+    def obtener_cantidad_fichas_fuera(self, color: str) -> int:
+        """
+        Devuelve cuántas fichas de un color específico han sido retiradas del tablero.
+        """
+        if color in self._fichas_fuera_:
+            return len(self._fichas_fuera_[color])
+        return 0
