@@ -67,7 +67,7 @@ def test_mover_ficha_simple():
     Verifica que una ficha se puede mover de un punto a otro vacío.
     """
     tablero = Board()
-    ficha_a_mover = Checker(color="blanco", posicion_inicial=1)
+    ficha_a_mover = Checker(color="blanco")
     tablero.agregar_ficha(ficha_a_mover, 1)
     
     tablero.mover_ficha(1, 4)
@@ -75,7 +75,6 @@ def test_mover_ficha_simple():
     assert len(tablero._puntos_[1]) == 0
     assert len(tablero._puntos_[4]) == 1
     assert tablero._puntos_[4][0].obtener_color() == "blanco"
-    assert ficha_a_mover.obtener_posicion() == 4
 
 def test_es_movimiento_valido_simple_negras():
     """
@@ -124,7 +123,7 @@ def test_mover_ficha_con_captura():
     tablero = Board()
     
     tablero.agregar_ficha(Checker(color="negro"), 1)
-    ficha_a_capturar = Checker(color="blanco", posicion_inicial=4)
+    ficha_a_capturar = Checker(color="blanco")
     tablero.agregar_ficha(ficha_a_capturar, 4)
 
     tablero.mover_ficha(1, 4)
@@ -210,7 +209,7 @@ def test_sacar_ficha_ejecucion():
     """
     tablero = Board()
     
-    ficha_a_sacar = Checker(color="negro", posicion_inicial=22)
+    ficha_a_sacar = Checker(color="negro")
     tablero.agregar_ficha(ficha_a_sacar, 22)
     
     tablero.sacar_ficha(22)
