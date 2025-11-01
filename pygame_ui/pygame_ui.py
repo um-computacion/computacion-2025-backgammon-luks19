@@ -21,11 +21,16 @@ class PygameUI:
         self._reloj_ = pygame.time.Clock()
         self._fuente_ = pygame.font.SysFont(None, 24)
         self._juego_ = BackgammonGame("Jugador 1", "Jugador 2")
-       
 
     def _dibujar_triangulo_(self, superficie, rect_tablero, col_vis, fila, color):
-        ancho_triangulo = rect_tablero.width / 12.0
-        x0 = rect_tablero.left + col_vis * ancho_triangulo
+        ancho_triangulo = rect_tablero.width / 13.0
+        
+        # Saltar la columna 6 para la barra
+        if col_vis >= 6:
+            x0 = rect_tablero.left + (col_vis + 1) * ancho_triangulo
+        else:
+            x0 = rect_tablero.left + col_vis * ancho_triangulo
+            
         x1 = x0 + ancho_triangulo
         x_medio = (x0 + x1) / 2.0
 
@@ -42,9 +47,6 @@ class PygameUI:
         pygame.draw.circle(superficie, LINEA, centro, radio, 2)
 
     def _dibujar_info_turno_(self):
-        """
-        Muestra en pantalla el turno del jugador actual y sus tiradas de dados.
-        """
         jugador_actual = self._juego_._jugador_actual_
         tiradas = self._juego_._dados_._tiradas_disponibles_
         
@@ -63,13 +65,19 @@ class PygameUI:
         rect_tablero = pygame.Rect(MARGEN_X, MARGEN_Y, ANCHO - 2 * MARGEN_X, ALTO - 2 * MARGEN_Y)
         pygame.draw.rect(self._pantalla_, COLOR_TABLERO, rect_tablero)
         
+        # Dibujar BARRA CENTRAL
+        ancho_triangulo = rect_tablero.width / 13.0
+        barra_x = rect_tablero.left + 6 * ancho_triangulo
+        pygame.draw.rect(self._pantalla_, COLOR_TABLERO, (barra_x, rect_tablero.top, ancho_triangulo, rect_tablero.height))
+        pygame.draw.line(self._pantalla_, LINEA, (barra_x, rect_tablero.top), (barra_x, rect_tablero.bottom), 3)
+        pygame.draw.line(self._pantalla_, LINEA, (barra_x + ancho_triangulo, rect_tablero.top), (barra_x + ancho_triangulo, rect_tablero.bottom), 3)
+        
         # Dibujar los 24 triángulos
         for i in range(12):
             self._dibujar_triangulo_(self._pantalla_, rect_tablero, i, 'top', TRIANGULO_A if i % 2 == 0 else TRIANGULO_B)
             self._dibujar_triangulo_(self._pantalla_, rect_tablero, i, 'bottom', TRIANGULO_B if i % 2 == 0 else TRIANGULO_A)
 
         # Dibujar las fichas
-        ancho_triangulo = rect_tablero.width / 12.0
         radio_ficha = int(ancho_triangulo * 0.4)
 
         for punto_num, fichas in self._juego_._tablero_._puntos_.items():
@@ -86,7 +94,11 @@ class PygameUI:
                 fila = 'top'
                 col_vis = 24 - punto_num
             
-            x_centro = rect_tablero.left + col_vis * ancho_triangulo + ancho_triangulo / 2
+            # Calcular posición considerando la barra
+            if col_vis >= 6:
+                x_centro = rect_tablero.left + (col_vis + 1) * ancho_triangulo + ancho_triangulo / 2
+            else:
+                x_centro = rect_tablero.left + col_vis * ancho_triangulo + ancho_triangulo / 2
 
             for i, ficha in enumerate(fichas):
                 if fila == 'bottom':
@@ -94,26 +106,34 @@ class PygameUI:
                 else:
                     y_centro = rect_tablero.top + radio_ficha + (i * radio_ficha * 2)
                 
-                # Si es la última ficha del punto seleccionado, resaltar
                 if punto_num == punto_seleccionado and i == len(fichas) - 1:
-                    pygame.draw.circle(self._pantalla_, COLOR_RESALTADO, (x_centro, y_centro), radio_ficha + 4)
+                    pygame.draw.circle(self._pantalla_, COLOR_RESALTADO, (int(x_centro), int(y_centro)), radio_ficha + 4)
 
-                self._dibujar_ficha_(self._pantalla_, (x_centro, y_centro), radio_ficha, color_rgb)
+                self._dibujar_ficha_(self._pantalla_, (int(x_centro), int(y_centro)), radio_ficha, color_rgb)
 
         self._dibujar_info_turno_()
               
     def _obtener_punto_desde_area_(self, pos):
-        """
-        Devuelve el número del punto (1-24) bajo las coordenadas del clic.
-        """
         rect_tablero = pygame.Rect(MARGEN_X, MARGEN_Y, ANCHO - 2 * MARGEN_X, ALTO - 2 * MARGEN_Y)
-        ancho_triangulo = rect_tablero.width / 12.0
+        ancho_triangulo = rect_tablero.width / 13.0
         mx, my = pos
 
         if not rect_tablero.collidepoint(mx, my):
             return None
 
-        col_vis = int((mx - rect_tablero.left) / ancho_triangulo)
+        col_relativa = (mx - rect_tablero.left) / ancho_triangulo
+        
+        # La columna 6 es la barra, ignorarla
+        if 6 <= col_relativa < 7:
+            return None
+            
+        if col_relativa >= 7:
+            col_vis = int(col_relativa) - 1
+        else:
+            col_vis = int(col_relativa)
+        
+        if col_vis < 0 or col_vis >= 12:
+            return None
         
         if my > rect_tablero.centery:
             punto_num = col_vis + 1
@@ -147,7 +167,6 @@ class PygameUI:
                         continue
 
                     if punto_origen_seleccionado is None:
-                        # Primer clic: seleccionar origen
                         fichas_en_punto = self._juego_._tablero_._puntos_[punto_clickeado]
                         if fichas_en_punto and fichas_en_punto[-1].obtener_color() == jugador_actual._color_:
                             punto_origen_seleccionado = punto_clickeado
@@ -156,7 +175,6 @@ class PygameUI:
                             print("Punto vacío o con fichas del oponente.")
                     
                     else:
-                        # Segundo clic: mover
                         punto_destino = punto_clickeado
                         origen = punto_origen_seleccionado
                         
@@ -171,7 +189,6 @@ class PygameUI:
                         
                         punto_origen_seleccionado = None
 
-            # Cambio de turno
             if not self._juego_._dados_._tiradas_disponibles_:
                 print("-" * 20)
                 print("Turno completado.")
