@@ -11,7 +11,6 @@ def test_creacion_del_juego():
     """
     juego = BackgammonGame("Jugador 1", "Jugador 2")
     
-    # Verificamos que los componentes existen comprobando un atributo clave de cada uno.
     assert hasattr(juego._tablero_, '_puntos_')
     assert hasattr(juego._jugador1_, '_fichas_')
     assert hasattr(juego._jugador2_, '_fichas_')
@@ -59,7 +58,6 @@ def test_verificar_ganador():
     juego = BackgammonGame("Jugador 1", "Jugador 2")
     juego.iniciar_juego()
     
-    # Simulamos que el jugador 1 (negras) ha sacado todas sus 15 fichas
     for _ in range(15):
         juego._tablero_._fichas_fuera_["negro"].append(Checker(color="negro"))
         
@@ -79,3 +77,75 @@ def test_no_hay_ganador_al_inicio():
     
     assert juego._juego_terminado_ is False
     assert juego._ganador_ is None
+
+def test_realizar_movimiento_exitoso():
+    """
+    Verifica que un movimiento válido se realiza correctamente.
+    """
+    juego = BackgammonGame("Jugador 1", "Jugador 2")
+    juego.iniciar_juego()
+    juego._jugador_actual_ = juego._jugador1_
+    juego._dados_._tiradas_disponibles_ = [3, 5]
+    
+    resultado = juego.realizar_movimiento(1, 4)
+    
+    assert resultado == "OK"
+    assert 3 not in juego._dados_._tiradas_disponibles_
+
+def test_realizar_movimiento_ilegal():
+    """
+    Verifica que un movimiento ilegal es rechazado.
+    """
+    juego = BackgammonGame("Jugador 1", "Jugador 2")
+    juego.iniciar_juego()
+    juego._jugador_actual_ = juego._jugador1_
+    juego._dados_._tiradas_disponibles_ = [3, 5]
+    
+    resultado = juego.realizar_movimiento(1, 24)
+    
+    assert resultado == "MOVIMIENTO_ILEGAL"
+
+def test_realizar_movimiento_tirada_no_disponible():
+    """
+    Verifica que se rechaza un movimiento cuando la distancia no está en las tiradas.
+    """
+    juego = BackgammonGame("Jugador 1", "Jugador 2")
+    juego.iniciar_juego()
+    juego._jugador_actual_ = juego._jugador1_
+    juego._dados_._tiradas_disponibles_ = [3, 5]
+    
+    resultado = juego.realizar_movimiento(1, 5)
+    
+    assert resultado == "TIRADA_NO_DISPONIBLE"
+
+def test_realizar_movimiento_bear_off():
+    """
+    Verifica que sacar fichas funciona correctamente.
+    """
+    juego = BackgammonGame("Jugador 1", "Jugador 2")
+    juego.iniciar_juego()
+    juego._jugador_actual_ = juego._jugador1_
+    juego._dados_._tiradas_disponibles_ = [6]
+    
+    juego._tablero_._puntos_ = {i: [] for i in range(1, 25)}
+    juego._tablero_.agregar_ficha(Checker(color="negro"), 19)
+    
+    resultado = juego.realizar_movimiento(19, 25)
+    
+    assert resultado == "OK"
+    assert len(juego._tablero_._fichas_fuera_["negro"]) == 1
+
+def test_realizar_movimiento_desde_barra():
+    """
+    Verifica que mover desde la barra funciona correctamente.
+    """
+    juego = BackgammonGame("Jugador 1", "Jugador 2")
+    juego.iniciar_juego()
+    juego._jugador_actual_ = juego._jugador1_
+    juego._dados_._tiradas_disponibles_ = [3]
+    
+    juego._tablero_._barra_["negro"].append(Checker(color="negro"))
+    
+    resultado = juego.realizar_movimiento(0, 3)
+    
+    assert resultado == "OK"

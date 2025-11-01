@@ -62,10 +62,21 @@ class Board:
         Mueve la ficha superior de un punto de origen a un punto de destino.
         Si el destino es un 'blot' (una sola ficha enemiga), la captura.
         """
-        if not self._puntos_[punto_origen]:
-            return
+        # Caso especial: mover desde la barra (origen=0)
+        if punto_origen == 0:
+            # Determinamos el color buscando en ambas barras
+            if self._barra_["negro"]:
+                ficha_a_mover = self._barra_["negro"].pop()
+            elif self._barra_["blanco"]:
+                ficha_a_mover = self._barra_["blanco"].pop()
+            else:
+                return
+        else:
+            # Movimiento normal desde un punto
+            if not self._puntos_[punto_origen]:
+                return
+            ficha_a_mover = self._puntos_[punto_origen].pop()
 
-        ficha_a_mover = self._puntos_[punto_origen].pop()
         color_jugador_actual = ficha_a_mover.obtener_color()
 
         # LÓGICA DE CAPTURA
