@@ -1,30 +1,16 @@
 class Checker:
     """
-    Representa una única ficha de Backgammon (Checker).
-    Almacena su color y su posición actual en el tablero.
+    Representa una ficha individual en el tablero de Backgammon.
+    Cada ficha tiene un color (blanco o negro).
     """
-    def __init__(self, color: str, posicion_inicial: int = None):
+    def __init__(self, color: str):
         """
-        Inicializa una ficha con un color y una posición opcional.
-        Los atributos y métodos siguen la convención de nombres en español.
+        Inicializa una ficha con un color específico.
         """
         self._color_ = color
-        self._posicion_ = posicion_inicial
 
-    def obtener_color(self) -> str:
+    def obtener_color(self):
         """
         Devuelve el color de la ficha.
         """
         return self._color_
-
-    def obtener_posicion(self) -> int:
-        """
-        Devuelve la posición actual de la ficha.
-        """
-        return self._posicion_
-
-    def establecer_posicion(self, nueva_posicion: int):
-        """
-        Actualiza la posición de la ficha.
-        """
-        self._posicion_ = nueva_posicion
